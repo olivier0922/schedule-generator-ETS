@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETS Schedule Planner</title>
+    <meta name="description" content="Generate and visualize conflict-free ETS course schedules">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <header class="app-header">
+            <div class="header-badge" id="headerBadge">Program Selection</div>
+            <h1>Schedule Planner</h1>
+            <p>Select your courses and generate conflict-free schedules</p>
+        </header>
+
+        <!-- PHASE: CONFIG -->
+        <div id="configPhase" class="phase active">
+            <div class="config-panel">
+                <h2>Configure your session</h2>
+                <div class="config-form">
+                    <div class="form-group">
+                        <label for="semesterSelect">Semester</label>
+                        <select id="semesterSelect" class="config-select">
+                            <option value="H-2026">Hiver 2026</option>
+                            <option value="E-2026">Été 2026</option>
+                            <option value="A-2026">Automne 2026</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="programSelect">Program</label>
+                        <select id="programSelect" class="config-select">
+                            <option value="log">Génie logiciel</option>
+                            <option value="gti">Génie des technologies de l'information</option>
+                            <option value="ctn">Génie de la construction</option>
+                            <option value="gol">Génie des opérations et de la logistique</option>
+                            <option value="aer">Génie aérospatial</option>
+                            <option value="ux">Design UX</option>
+                            <option value="ele">Génie électrique</option>
+                            <option value="mec">Génie mécanique</option>
+                            <option value="gpa">Génie de la production automatisée</option>
+                            <option value="inf">Informatique distribuée</option>
+                        </select>
+                    </div>
+                    <button id="loadProgramBtn" class="generate-btn ready" style="width: 100%; justify-content: center; margin-top: 16px;">Load Courses</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading-screen" id="loading" style="display:none;flex-direction:column;align-items:center;padding:80px 20px;gap:16px">
+            <div class="spinner" style="width:36px;height:36px;border:3px solid var(--border-glass);border-top-color:var(--accent-1);border-radius:50%;animation:spin 0.8s linear infinite"></div>
+            <div style="color:var(--text-secondary);font-size:0.85rem">Loading course data…</div>
+        </div>
+
+        <!-- Error -->
+        <div class="error-screen" id="error" style="display:none;text-align:center;padding:60px 20px;color:var(--accent-3)">
+            <h2 style="margin-bottom:12px;font-size:1.2rem">Could not load course data</h2>
+            <div class="error-details" id="errorDetails" style="background:rgba(255,107,157,0.08);border:1px solid rgba(255,107,157,0.15);padding:16px;border-radius:var(--radius-md);max-width:500px;margin:0 auto;font-size:0.8rem;color:var(--text-secondary)"></div>
+        </div>
+
+        <!-- PHASE: SELECTION -->
+        <div id="selectionPhase" class="phase">
+            <div class="selection-top-nav" style="margin-bottom: 16px;">
+                <button class="back-btn" id="backToConfigBtn">← Change Program</button>
+            </div>
+            <div class="selection-summary" id="selectionSummary">
+                <div class="summary-buckets">
+                    <div class="bucket required">
+                        <div class="bucket-header">
+                            <span class="bucket-label req">📌 Required</span>
+                            <span class="bucket-count" id="reqCount">0</span>
+                        </div>
+                        <div class="bucket-chips" id="requiredChips">
+                            <span class="bucket-empty">Click "+ Required" on courses below</span>
+                        </div>
+                    </div>
+                    <div class="bucket-divider"></div>
+                    <div class="bucket optional">
+                        <div class="bucket-header">
+                            <span class="bucket-label opt">📋 Optional</span>
+                            <span class="bucket-count" id="optCount">0</span>
+                        </div>
+                        <div class="bucket-chips" id="optionalChips">
+                            <span class="bucket-empty">Click "+ Optional" on courses below</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-config">
+                    <div class="config-item">
+                        <label>Courses per schedule</label>
+                        <div class="stepper">
+                            <button class="stepper-btn" id="countDown">−</button>
+                            <span class="stepper-value" id="courseCount">4</span>
+                            <button class="stepper-btn" id="countUp">+</button>
+                        </div>
+                    </div>
+                    <button class="add-btn opt-btn" id="openConstraintsBtn" style="height: 32px; padding: 0 12px; margin-left: auto;">⚙️ Global Constraints</button>
+                    <div class="config-info" id="configInfo">Select courses to begin</div>
+                    <button class="generate-btn" id="generateBtn" disabled>
+                        ⚡ Generate Schedules
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-filters">
+                <div class="search-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search courses by code or name...">
+                    <button class="search-clear" id="searchClear" style="display:none">×</button>
+                </div>
+                <div class="filter-row">
+                    <button class="filter-pill active" data-filter="all">All</button>
+                    <button class="filter-pill" data-filter="LOG">LOG</button>
+                    <button class="filter-pill" data-filter="GTI">GTI</button>
+                    <button class="filter-pill" data-filter="MAT">MAT</button>
+                    <button class="filter-pill" data-filter="PHY">PHY</button>
+                    <button class="filter-pill" data-filter="other">Other</button>
+                </div>
+            </div>
+
+            <div class="catalog-grid" id="catalogGrid"></div>
+            <div class="catalog-empty" id="catalogEmpty" style="display:none">No courses match your search</div>
+        </div>
+
+        <!-- PHASE: RESULTS -->
+        <div id="resultsPhase" class="phase">
+            <nav class="nav-bar">
+                <button class="back-btn" id="backBtn">← Back</button>
+                <div class="nav-group">
+                    <label>Schedule</label>
+                    <div class="schedule-nav">
+                        <button class="nav-arrow" id="prevBtn" title="Previous (←)">‹</button>
+                        <div class="schedule-counter" id="scheduleCounter">1 <span>/ 1</span></div>
+                        <button class="nav-arrow" id="nextBtn" title="Next (→)">›</button>
+                    </div>
+                </div>
+                <div class="nav-group">
+                    <label>Sort</label>
+                    <select class="sort-select" id="sortSelect">
+                        <option value="default">Default order</option>
+                        <option value="distance-desc">Most distance sessions</option>
+                        <option value="distance-asc">Least distance sessions</option>
+                        <option value="compact">Most compact (fewer days)</option>
+                        <option value="earliest">Latest start time</option>
+                        <option value="gaps">Least gaps</option>
+                    </select>
+                </div>
+                <div class="nav-group">
+                    <label>View</label>
+                    <button class="pill-btn active" id="calendarBtn">Calendar</button>
+                    <button class="pill-btn" id="listBtn">List</button>
+                </div>
+            </nav>
+
+            <div class="stats-row" id="stats"></div>
+            <div class="course-chips" id="courseChips"></div>
+
+            <div id="calendarView" class="calendar-view">
+                <div class="legend-bar">
+                    <div class="legend-item"><div class="legend-dot" style="background:#6c63ff"></div> In-Person</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#00d4aa"></div> Distance</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#ff6b9d"></div> Hybrid</div>
+                </div>
+                <div class="calendar-container" id="calendarContainer"></div>
+            </div>
+
+            <div id="listView" class="list-view"></div>
+            <div class="keyboard-hint">
+                <kbd>←</kbd> <kbd>→</kbd> navigate &nbsp;·&nbsp; <kbd>C</kbd> calendar &nbsp;·&nbsp; <kbd>L</kbd> list &nbsp;·&nbsp; <kbd>Esc</kbd> back
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toasts"></div>
+
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-code" id="tooltipCode"></div>
+        <div class="tooltip-name" id="tooltipName"></div>
+        <div class="tooltip-detail" id="tooltipDetail"></div>
+    </div>
+
+    <!-- Constraints Modal -->
+    <div class="modal-overlay" id="constraintsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Global Constraints</h2>
+                <button class="modal-close" id="closeConstraintsBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="constraint-group">
+                    <label>Days Off (No classes on these days)</label>
+                    <div class="day-pill-group">
+                        <div class="day-pill" data-day="Monday">Mon</div>
+                        <div class="day-pill" data-day="Tuesday">Tue</div>
+                        <div class="day-pill" data-day="Wednesday">Wed</div>
+                        <div class="day-pill" data-day="Thursday">Thu</div>
+                        <div class="day-pill" data-day="Friday">Fri</div>
+                    </div>
+                </div>
+                <div class="constraint-group" style="margin-top: 24px;">
+                    <label>Time Block Exclusions</label>
+                    <div class="toggle-group">
+                        <div class="toggle-row" id="noMorningToggle">
+                            <span class="toggle-label"><i>🌅</i> No Morning classes (8:30 - 12:30)</span>
+                            <div class="toggle-switch"></div>
+                        </div>
+                        <div class="toggle-row" id="noAfternoonToggle">
+                            <span class="toggle-label"><i>☀️</i> No Afternoon classes (13:30 - 17:30)</span>
+                            <div class="toggle-switch"></div>
+                        </div>
+                        <div class="toggle-row" id="noEveningToggle">
+                            <span class="toggle-label"><i>🌙</i> No Evening classes (18:00 - 22:00)</span>
+                            <div class="toggle-switch"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="generate-btn ready" id="saveConstraintsBtn" style="width:100%;justify-content:center;">Save Constraints</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

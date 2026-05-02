@@ -1,0 +1,656 @@
+[
+  {
+    "id": 1,
+    "course_combination": [
+      "LOG795",
+      "LOG460",
+      "LOG721",
+      "LOG750"
+    ],
+    "courses": [
+      {
+        "code": "LOG795",
+        "group": "01",
+        "name": "PROJET DE FIN D'ÉTUDES EN GÉNIE LOGICIEL",
+        "sessions": [
+          {
+            "day": "Wednesday",
+            "start": "22:00",
+            "end": "23:00",
+            "type": "Project",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG460",
+        "group": "01",
+        "name": "SÉCURITÉ DES LOGICIELS",
+        "sessions": [
+          {
+            "day": "Monday",
+            "start": "13:30",
+            "end": "15:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Monday",
+            "start": "15:30",
+            "end": "17:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Thursday",
+            "start": "13:30",
+            "end": "17:00",
+            "type": "Lecture",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG721",
+        "group": "01",
+        "name": "INTERGICIELS POUR APPLICATIONS DISTRIBUÉS",
+        "sessions": [
+          {
+            "day": "Monday",
+            "start": "18:00",
+            "end": "20:00",
+            "type": "Lab",
+            "mode": "Distance"
+          },
+          {
+            "day": "Monday",
+            "start": "20:00",
+            "end": "22:00",
+            "type": "Lab",
+            "mode": "Distance"
+          },
+          {
+            "day": "Wednesday",
+            "start": "18:00",
+            "end": "21:30",
+            "type": "Lecture",
+            "mode": "Distance"
+          }
+        ]
+      },
+      {
+        "code": "LOG750",
+        "group": "01",
+        "name": "INFOGRAPHIE",
+        "sessions": [
+          {
+            "day": "Tuesday",
+            "start": "13:30",
+            "end": "15:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Tuesday",
+            "start": "15:30",
+            "end": "17:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Friday",
+            "start": "13:30",
+            "end": "17:00",
+            "type": "Lecture",
+            "mode": "In-person"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "course_combination": [
+      "LOG795",
+      "LOG460",
+      "LOG725",
+      "LOG750"
+    ],
+    "courses": [
+      {
+        "code": "LOG795",
+        "group": "01",
+        "name": "PROJET DE FIN D'ÉTUDES EN GÉNIE LOGICIEL",
+        "sessions": [
+          {
+            "day": "Wednesday",
+            "start": "22:00",
+            "end": "23:00",
+            "type": "Project",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG460",
+        "group": "01",
+        "name": "SÉCURITÉ DES LOGICIELS",
+        "sessions": [
+          {
+            "day": "Monday",
+            "start": "13:30",
+            "end": "15:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Monday",
+            "start": "15:30",
+            "end": "17:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Thursday",
+            "start": "13:30",
+            "end": "17:00",
+            "type": "Lecture",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG725",
+        "group": "01",
+        "name": "INGÉNIERIE ET CONCEPTION DE JEUX VIDÉO",
+        "sessions": [
+          {
+            "day": "Monday",
+            "start": "18:00",
+            "end": "21:30",
+            "type": "Lecture",
+            "mode": "In-person"
+          },
+          {
+            "day": "Tuesday",
+            "start": "18:00",
+            "end": "20:00",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Tuesday",
+            "start": "20:00",
+            "end": "22:00",
+            "type": "Lab",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG750",
+        "group": "01",
+        "name": "INFOGRAPHIE",
+        "sessions": [
+          {
+            "day": "Tuesday",
+            "start": "13:30",
+            "end": "15:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Tuesday",
+            "start": "15:30",
+            "end": "17:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Friday",
+            "start": "13:30",
+            "end": "17:00",
+            "type": "Lecture",
+            "mode": "In-person"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "course_combination": [
+      "LOG795",
+      "LOG680",
+      "LOG721",
+      "LOG750"
+    ],
+    "courses": [
+      {
+        "code": "LOG795",
+        "group": "01",
+        "name": "PROJET DE FIN D'ÉTUDES EN GÉNIE LOGICIEL",
+        "sessions": [
+          {
+            "day": "Wednesday",
+            "start": "22:00",
+            "end": "23:00",
+            "type": "Project",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG680",
+        "group": "01",
+        "name": "INTRODUCTION À L'APPROCHE DEVOPS",
+        "sessions": [
+          {
+            "day": "Monday",
+            "start": "13:30",
+            "end": "17:00",
+            "type": "Lecture",
+            "mode": "Distance"
+          },
+          {
+            "day": "Thursday",
+            "start": "13:30",
+            "end": "15:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Thursday",
+            "start": "15:30",
+            "end": "17:30",
+            "type": "Lab",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG721",
+        "group": "01",
+        "name": "INTERGICIELS POUR APPLICATIONS DISTRIBUÉS",
+        "sessions": [
+          {
+            "day": "Monday",
+            "start": "18:00",
+            "end": "20:00",
+            "type": "Lab",
+            "mode": "Distance"
+          },
+          {
+            "day": "Monday",
+            "start": "20:00",
+            "end": "22:00",
+            "type": "Lab",
+            "mode": "Distance"
+          },
+          {
+            "day": "Wednesday",
+            "start": "18:00",
+            "end": "21:30",
+            "type": "Lecture",
+            "mode": "Distance"
+          }
+        ]
+      },
+      {
+        "code": "LOG750",
+        "group": "01",
+        "name": "INFOGRAPHIE",
+        "sessions": [
+          {
+            "day": "Tuesday",
+            "start": "13:30",
+            "end": "15:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Tuesday",
+            "start": "15:30",
+            "end": "17:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Friday",
+            "start": "13:30",
+            "end": "17:00",
+            "type": "Lecture",
+            "mode": "In-person"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "course_combination": [
+      "LOG795",
+      "LOG680",
+      "LOG725",
+      "LOG750"
+    ],
+    "courses": [
+      {
+        "code": "LOG795",
+        "group": "01",
+        "name": "PROJET DE FIN D'ÉTUDES EN GÉNIE LOGICIEL",
+        "sessions": [
+          {
+            "day": "Wednesday",
+            "start": "22:00",
+            "end": "23:00",
+            "type": "Project",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG680",
+        "group": "01",
+        "name": "INTRODUCTION À L'APPROCHE DEVOPS",
+        "sessions": [
+          {
+            "day": "Monday",
+            "start": "13:30",
+            "end": "17:00",
+            "type": "Lecture",
+            "mode": "Distance"
+          },
+          {
+            "day": "Thursday",
+            "start": "13:30",
+            "end": "15:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Thursday",
+            "start": "15:30",
+            "end": "17:30",
+            "type": "Lab",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG725",
+        "group": "01",
+        "name": "INGÉNIERIE ET CONCEPTION DE JEUX VIDÉO",
+        "sessions": [
+          {
+            "day": "Monday",
+            "start": "18:00",
+            "end": "21:30",
+            "type": "Lecture",
+            "mode": "In-person"
+          },
+          {
+            "day": "Tuesday",
+            "start": "18:00",
+            "end": "20:00",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Tuesday",
+            "start": "20:00",
+            "end": "22:00",
+            "type": "Lab",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG750",
+        "group": "01",
+        "name": "INFOGRAPHIE",
+        "sessions": [
+          {
+            "day": "Tuesday",
+            "start": "13:30",
+            "end": "15:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Tuesday",
+            "start": "15:30",
+            "end": "17:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Friday",
+            "start": "13:30",
+            "end": "17:00",
+            "type": "Lecture",
+            "mode": "In-person"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "course_combination": [
+      "LOG795",
+      "LOG710",
+      "LOG721",
+      "LOG750"
+    ],
+    "courses": [
+      {
+        "code": "LOG795",
+        "group": "01",
+        "name": "PROJET DE FIN D'ÉTUDES EN GÉNIE LOGICIEL",
+        "sessions": [
+          {
+            "day": "Wednesday",
+            "start": "22:00",
+            "end": "23:00",
+            "type": "Project",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG710",
+        "group": "01",
+        "name": "PRINCIPES SYSTÈMES D'EXPL. ET PROGRAMMATION",
+        "sessions": [
+          {
+            "day": "Wednesday",
+            "start": "08:30",
+            "end": "10:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Wednesday",
+            "start": "10:30",
+            "end": "12:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Thursday",
+            "start": "13:30",
+            "end": "17:00",
+            "type": "Lecture",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG721",
+        "group": "01",
+        "name": "INTERGICIELS POUR APPLICATIONS DISTRIBUÉS",
+        "sessions": [
+          {
+            "day": "Monday",
+            "start": "18:00",
+            "end": "20:00",
+            "type": "Lab",
+            "mode": "Distance"
+          },
+          {
+            "day": "Monday",
+            "start": "20:00",
+            "end": "22:00",
+            "type": "Lab",
+            "mode": "Distance"
+          },
+          {
+            "day": "Wednesday",
+            "start": "18:00",
+            "end": "21:30",
+            "type": "Lecture",
+            "mode": "Distance"
+          }
+        ]
+      },
+      {
+        "code": "LOG750",
+        "group": "01",
+        "name": "INFOGRAPHIE",
+        "sessions": [
+          {
+            "day": "Tuesday",
+            "start": "13:30",
+            "end": "15:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Tuesday",
+            "start": "15:30",
+            "end": "17:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Friday",
+            "start": "13:30",
+            "end": "17:00",
+            "type": "Lecture",
+            "mode": "In-person"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "course_combination": [
+      "LOG795",
+      "LOG710",
+      "LOG725",
+      "LOG750"
+    ],
+    "courses": [
+      {
+        "code": "LOG795",
+        "group": "01",
+        "name": "PROJET DE FIN D'ÉTUDES EN GÉNIE LOGICIEL",
+        "sessions": [
+          {
+            "day": "Wednesday",
+            "start": "22:00",
+            "end": "23:00",
+            "type": "Project",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG710",
+        "group": "01",
+        "name": "PRINCIPES SYSTÈMES D'EXPL. ET PROGRAMMATION",
+        "sessions": [
+          {
+            "day": "Wednesday",
+            "start": "08:30",
+            "end": "10:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Wednesday",
+            "start": "10:30",
+            "end": "12:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Thursday",
+            "start": "13:30",
+            "end": "17:00",
+            "type": "Lecture",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG725",
+        "group": "01",
+        "name": "INGÉNIERIE ET CONCEPTION DE JEUX VIDÉO",
+        "sessions": [
+          {
+            "day": "Monday",
+            "start": "18:00",
+            "end": "21:30",
+            "type": "Lecture",
+            "mode": "In-person"
+          },
+          {
+            "day": "Tuesday",
+            "start": "18:00",
+            "end": "20:00",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Tuesday",
+            "start": "20:00",
+            "end": "22:00",
+            "type": "Lab",
+            "mode": "In-person"
+          }
+        ]
+      },
+      {
+        "code": "LOG750",
+        "group": "01",
+        "name": "INFOGRAPHIE",
+        "sessions": [
+          {
+            "day": "Tuesday",
+            "start": "13:30",
+            "end": "15:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Tuesday",
+            "start": "15:30",
+            "end": "17:30",
+            "type": "Lab",
+            "mode": "In-person"
+          },
+          {
+            "day": "Friday",
+            "start": "13:30",
+            "end": "17:00",
+            "type": "Lecture",
+            "mode": "In-person"
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,5 @@
+﻿page,course_code,course_name,group,day,start_time,end_time,activity_type,mode,room
+1,DSN420,VISUALISATION DE L’INFORMATION,01,Monday,09:00,12:00,Lecture,In-person,
+1,DSN420,VISUALISATION DE L’INFORMATION,01,Monday,13:00,15:00,Lab,,
+1,DSN420,VISUALISATION DE L’INFORMATION,01,Thursday,09:00,12:00,Lecture,In-person,
+1,DSN420,VISUALISATION DE L’INFORMATION,01,Thursday,13:00,15:00,Lab,,
