@@ -1,14 +1,16 @@
 (() => {
 // ─── State ───
-let allCourses = {};       // { code: { name, groups: { grp: [sessions] } } }
+let allCourses = {};
 let requiredCourses = [];
 let optionalCourses = [];
 let totalPerSchedule = 4;
 let schedules = [], sorted = [], idx = 0, view = 'calendar';
 let searchQuery = '', filterDept = 'all';
-
-let globalConstraints = { daysOff: [], noMorning: false, noAfternoon: false, noEvening: false };
-let courseConstraints = {}; // { 'LOG721': { allowedGroups: ['01', '02'] } }
+let globalConstraints = { daysOff: [], noMorning: false, noAfternoon: false, noEvening: false, distanceOnly: false, maxGap: 6 };
+let courseConstraints = {};
+let favorites = new Set();
+let showOnlyFavs = false;
+let slideDir = 'left';
 
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
 const DAY_SHORT = ['Mon','Tue','Wed','Thu','Fri'];
@@ -48,9 +50,10 @@ async function loadCSV(sem, prog) {
   searchQuery = '';
   document.getElementById('searchInput').value = '';
   courseConstraints = {};
-  globalConstraints = { daysOff: [], noMorning: false, noAfternoon: false, noEvening: false };
+  globalConstraints = { daysOff: [], noMorning: false, noAfternoon: false, noEvening: false, distanceOnly: false, maxGap: 6 };
   document.querySelectorAll('.day-pill').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.toggle-row').forEach(el => el.classList.remove('active'));
+  if(document.getElementById('maxGapSlider')){document.getElementById('maxGapSlider').value=6;document.getElementById('maxGapValue').textContent='No limit';}
   
   document.getElementById('configPhase').classList.remove('active');
   document.getElementById('loading').style.display = 'flex';
@@ -68,6 +71,7 @@ async function loadCSV(sem, prog) {
     document.getElementById('headerBadge').textContent = `${semText} · ${progText}`;
 
     renderSelectionSummary();
+    buildFilterPills();
     renderCatalog();
     document.getElementById('loading').style.display = 'none';
     document.getElementById('selectionPhase').classList.add('active');
@@ -110,6 +114,25 @@ function parseCSVData(csv) {
   }
 }
 
+// ─── Dynamic Filters ───
+function buildFilterPills() {
+  const prefixes = new Set();
+  Object.keys(allCourses).forEach(c => prefixes.add(c.replace(/\d+/,'')));
+  const row = document.getElementById('filterRow');
+  const sorted = [...prefixes].sort();
+  row.innerHTML = '<button class="filter-pill active" data-filter="all">All</button>' +
+    sorted.map(p => `<button class="filter-pill" data-filter="${p}">${p}</button>`).join('') +
+    '<button class="filter-pill" data-filter="other">Other</button>';
+  row.querySelectorAll('.filter-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      row.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterDept = btn.dataset.filter;
+      renderCatalog();
+    });
+  });
+}
+
 // ─── Schedule Engine ───
 function timesOverlap(s1,e1,s2,e2) { return s1 < e2 && s2 < e1; }
 
@@ -133,11 +156,28 @@ function cartesian(arrays) {
 function sessionViolatesGlobal(session) {
   if (globalConstraints.daysOff.includes(session.day)) return true;
   const start = parseTime(session.start);
-  
   if (globalConstraints.noMorning && start < 13*60) return true;
   if (globalConstraints.noAfternoon && start >= 13*60 && start < 17.5*60) return true;
   if (globalConstraints.noEvening && start >= 17.5*60) return true;
-  
+  if (globalConstraints.distanceOnly) {
+    const m = (session.mode||'').toLowerCase();
+    if (!m.includes('distance')) return true;
+  }
+  return false;
+}
+
+function scheduleExceedsMaxGap(groups) {
+  if (globalConstraints.maxGap >= 6) return false;
+  const maxMin = globalConstraints.maxGap * 60;
+  for (const day of [...DAYS, 'Saturday']) {
+    const times = [];
+    groups.forEach(g => g.sessions.filter(s => s.day===day).forEach(s => times.push([parseTime(s.start),parseTime(s.end)])));
+    if (times.length < 2) continue;
+    times.sort((a,b) => a[0]-b[0]);
+    for (let i = 1; i < times.length; i++) {
+      if (times[i][0] - times[i-1][1] > maxMin) return true;
+    }
+  }
   return false;
 }
 
@@ -165,7 +205,9 @@ function generateAllSchedules(courseCodes) {
     outer: for (let i = 0; i < combo.length; i++)
       for (let j = i+1; j < combo.length; j++)
         if (groupsConflict(combo[i].sessions, combo[j].sessions)) { conflict = true; break outer; }
-    if (!conflict) valid.push(combo);
+    if (!conflict) {
+      if (!scheduleExceedsMaxGap(combo)) valid.push(combo);
+    }
   }
   return valid;
 }
@@ -203,10 +245,11 @@ function runGeneration() {
       course_combination: s.courseCodes,
       courses: s.groups.map(g => ({
         code: g.code, group: g.group, name: g.name,
-        sessions: g.sessions.map(se => ({ day: se.day, start: se.start, end: se.end, type: se.type, mode: se.mode }))
+        sessions: g.sessions.map(se => ({ day: se.day, start: se.start, end: se.end, type: se.type, mode: se.mode, room: se.room||'' }))
       }))
     }));
     sorted = [...schedules];
+    sorted.sort((a,b) => calcScore(b)-calcScore(a));
     idx = 0;
     toast(`Found ${schedules.length} valid schedule(s)!`, 'success');
     showResults();
@@ -239,7 +282,8 @@ function renderCatalog() {
   const filtered = codes.filter(code => {
     if (filterDept !== 'all') {
       const prefix = code.replace(/\d+/,'');
-      if (filterDept === 'other') { if (['LOG','GTI','MAT','PHY'].includes(prefix)) return false; }
+      const knownPrefixes = [...new Set(codes.map(c=>c.replace(/\d+/,'')))];
+      if (filterDept === 'other') { if (knownPrefixes.slice(0,knownPrefixes.length-1).includes(prefix)) return false; }
       else if (prefix !== filterDept) return false;
     }
     if (q) {
@@ -365,6 +409,7 @@ function showResults() {
   document.getElementById('selectionPhase').classList.remove('active');
   document.getElementById('resultsPhase').classList.add('active');
   document.querySelector('.app-header p').textContent = `${sorted.length} schedule${sorted.length>1?'s':''} found — browse & compare`;
+  updateFavUI();
   renderSchedule();
 }
 
@@ -372,6 +417,71 @@ function goBack() {
   document.getElementById('resultsPhase').classList.remove('active');
   document.getElementById('selectionPhase').classList.add('active');
   document.querySelector('.app-header p').textContent = 'Select your courses and generate conflict-free schedules';
+}
+
+// ─── Scoring ───
+function calcScore(s) {
+  let score = 50;
+  const days = getActiveDays(s);
+  score += (5 - days) * 8;
+  const gap = getGapMinutes(s);
+  score -= Math.min(gap / 30, 20);
+  const earliest = getEarliestStart(s);
+  score += Math.min((earliest - 480) / 30, 10);
+  const dist = getDistanceCount(s);
+  score += dist * 2;
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+// ─── Favorites ───
+function toggleFav() {
+  const id = sorted[idx]?.id;
+  if (!id) return;
+  if (favorites.has(id)) favorites.delete(id); else favorites.add(id);
+  updateFavUI();
+  renderSchedule();
+}
+function updateFavUI() {
+  const cnt = favorites.size;
+  const badge = document.getElementById('favCount');
+  badge.textContent = cnt;
+  badge.style.display = cnt > 0 ? 'inline' : 'none';
+}
+function toggleFavFilter() {
+  showOnlyFavs = !showOnlyFavs;
+  document.getElementById('favFilterBtn').classList.toggle('active', showOnlyFavs);
+  if (showOnlyFavs) {
+    sorted = schedules.filter(s => favorites.has(s.id));
+    if (!sorted.length) { toast('No favorites yet — star some schedules first','error'); showOnlyFavs=false; document.getElementById('favFilterBtn').classList.remove('active'); sorted=[...schedules]; }
+  } else { sorted = [...schedules]; }
+  idx = 0; renderSchedule();
+}
+
+// ─── Export ───
+function exportCopy() {
+  const s = sorted[idx]; if(!s) return;
+  let txt = `ETS Schedule #${s.id}\n${'='.repeat(30)}\n`;
+  s.courses.forEach(c => {
+    txt += `\n${c.code} — ${c.name} (Group ${c.group})\n`;
+    c.sessions.forEach(se => { txt += `  ${se.day} ${se.start}–${se.end} | ${se.type} | ${se.mode||'N/A'}\n`; });
+  });
+  navigator.clipboard.writeText(txt).then(() => toast('Copied to clipboard!','success'));
+}
+function exportICS() {
+  const s = sorted[idx]; if(!s) return;
+  let ics = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//ETS Schedule Planner//EN\n';
+  const baseDate = {Monday:'20260907',Tuesday:'20260908',Wednesday:'20260909',Thursday:'20260910',Friday:'20260911',Saturday:'20260912'};
+  s.courses.forEach(c => {
+    c.sessions.forEach(se => {
+      const d = baseDate[se.day]||'20260907';
+      const st = se.start.replace(':','')+'00'; const et = se.end.replace(':','')+'00';
+      ics += `BEGIN:VEVENT\nDTSTART:${d}T${st}\nDTEND:${d}T${et}\nRRULE:FREQ=WEEKLY;COUNT=15\nSUMMARY:${c.code} - ${se.type}\nDESCRIPTION:${c.name} | Group ${c.group} | ${se.mode||''}\nLOCATION:ÉTS\nEND:VEVENT\n`;
+    });
+  });
+  ics += 'END:VCALENDAR';
+  const blob = new Blob([ics],{type:'text/calendar'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`schedule_${s.id}.ics`; a.click();
+  toast('ICS file downloaded!','success');
 }
 
 // ─── Results Rendering ───
@@ -396,8 +506,9 @@ function getGapMinutes(s) {
 }
 
 function sortSchedules(method) {
-  sorted = [...schedules];
+  sorted = showOnlyFavs ? schedules.filter(s => favorites.has(s.id)) : [...schedules];
   switch(method) {
+    case 'score': sorted.sort((a,b) => calcScore(b)-calcScore(a)); break;
     case 'distance-desc': sorted.sort((a,b) => getDistanceCount(b)-getDistanceCount(a)); break;
     case 'distance-asc': sorted.sort((a,b) => getDistanceCount(a)-getDistanceCount(b)); break;
     case 'compact': sorted.sort((a,b) => getActiveDays(a)-getActiveDays(b)); break;
@@ -409,7 +520,34 @@ function sortSchedules(method) {
 
 function renderSchedule() {
   document.getElementById('scheduleCounter').innerHTML = `${idx+1} <span>/ ${sorted.length}</span>`;
-  renderStats(); renderChips(); renderCalendar(); renderList();
+  const s = sorted[idx];
+  // Fav button
+  const fb = document.getElementById('favBtn');
+  if(fb) fb.classList.toggle('active', favorites.has(s?.id));
+  // Score
+  const score = s ? calcScore(s) : 0;
+  const sf = document.getElementById('scoreFill'); if(sf) sf.style.width = score+'%';
+  const sv = document.getElementById('scoreValue'); if(sv) sv.textContent = score;
+  renderStats(); renderDayBreakdown(); renderChips(); renderCalendar(); renderList();
+}
+
+function renderDayBreakdown() {
+  const s = sorted[idx]; if(!s) return;
+  const el = document.getElementById('dayBreakdown'); if(!el) return;
+  const allDays = [...DAYS];
+  s.courses.forEach(c => c.sessions.forEach(se => { if(se.day==='Saturday' && !allDays.includes('Saturday')) allDays.push('Saturday'); }));
+  el.innerHTML = allDays.map(day => {
+    const sessions = []; s.courses.forEach(c => c.sessions.filter(se=>se.day===day).forEach(se => sessions.push(se)));
+    const hrs = sessions.reduce((sum,se) => sum+(parseTime(se.end)-parseTime(se.start))/60, 0);
+    const isEmpty = sessions.length === 0;
+    let times = '';
+    if(!isEmpty) {
+      const starts = sessions.map(se=>parseTime(se.start)).sort((a,b)=>a-b);
+      const ends = sessions.map(se=>parseTime(se.end)).sort((a,b)=>b-a);
+      times = `${fmtTime(starts[0])}–${fmtTime(ends[0])}`;
+    }
+    return `<div class="day-bar ${isEmpty?'empty':''}"><div class="day-bar-label">${day.slice(0,3)}</div><div class="day-bar-value">${isEmpty?'Free':hrs.toFixed(1)+'h'}</div>${times?`<div class="day-bar-hours">${times}</div>`:''}</div>`;
+  }).join('');
 }
 
 function renderStats() {
@@ -417,9 +555,12 @@ function renderStats() {
   let ip=0, di=0;
   s.courses.forEach(c => c.sessions.forEach(se => { const mc=getModeClass(se.mode); if(mc==='in-person')ip++; else if(mc==='online')di++; }));
   const totalH = s.courses.reduce((sum,c) => sum+c.sessions.reduce((ss,se) => ss+(parseTime(se.end)-parseTime(se.start))/60,0),0);
+  const gapH = (getGapMinutes(s)/60).toFixed(1);
+  const earliest = fmtTime(getEarliestStart(s));
   document.getElementById('stats').innerHTML = [
     {v:s.courses.length,l:'Courses'},{v:s.courses.reduce((s2,c)=>s2+c.sessions.length,0),l:'Sessions'},
-    {v:totalH.toFixed(1)+'h',l:'Weekly Hours'},{v:ip,l:'In-Person'},{v:di,l:'Distance'},{v:getActiveDays(s),l:'Active Days'}
+    {v:totalH.toFixed(1)+'h',l:'Weekly Hours'},{v:ip,l:'In-Person'},{v:di,l:'Distance'},
+    {v:getActiveDays(s),l:'Active Days'},{v:gapH+'h',l:'Total Gaps'},{v:earliest,l:'Earliest'}
   ].map(({v,l})=>`<div class="stat-card animate-in"><div class="stat-value">${v}</div><div class="stat-label">${l}</div></div>`).join('');
 }
 
@@ -437,14 +578,19 @@ function renderCalendar() {
   const headH = parseFloat(root.getPropertyValue('--header-height'))||36;
   const firstSlot = parseTime(slots[0]);
   const colors = getCourseColorMap(s);
+  let hasSat = false;
+  s.courses.forEach(c => c.sessions.forEach(se => { if(se.day==='Saturday') hasSat=true; }));
+  const days = hasSat ? [...DAYS,'Saturday'] : [...DAYS];
+  const dayShort = hasSat ? [...DAY_SHORT,'Sat'] : [...DAY_SHORT];
+  const nCols = days.length;
 
-  let html = '<div class="calendar-wrapper"><div class="calendar-grid">';
+  let html = '<div class="calendar-wrapper"><div class="calendar-grid'+(hasSat?' has-saturday':'')+'">';
   html += '<div class="calendar-header">Time</div>';
-  DAY_SHORT.forEach(d => { html += `<div class="calendar-header">${d}</div>`; });
+  dayShort.forEach(d => { html += `<div class="calendar-header">${d}</div>`; });
   slots.forEach(slot => {
     const isHour = slot.endsWith(':00');
     html += `<div class="time-label">${isHour?slot:''}</div>`;
-    DAYS.forEach(day => { html += `<div class="time-slot ${isHour?'hour-mark':''}" data-day="${day}"></div>`; });
+    days.forEach(day => { html += `<div class="time-slot ${isHour?'hour-mark':''}" data-day="${day}"></div>`; });
   });
   html += '</div><div class="blocks-overlay" id="blocksOverlay"></div></div>';
   container.innerHTML = html;
@@ -460,26 +606,27 @@ function renderCalendar() {
 
   s.courses.forEach(course => {
     course.sessions.forEach(session => {
-      const di = DAYS.indexOf(session.day); if(di===-1) return;
+      const di = days.indexOf(session.day); if(di===-1) return;
       const start=parseTime(session.start), end=parseTime(session.end), dur=end-start;
       const top = ((start-firstSlot)/30)*slotHeight + headerH;
       const h = (dur/30)*slotHeight - 2;
       const modeClass = getModeClass(session.mode);
-      const dayColW = (gridW-timeColW)/5;
+      const dayColW = (gridW-timeColW)/nCols;
       const left = timeColW + dayColW*di;
+      const roomHtml = session.room ? `<div class="room-tag">${session.room}</div>` : '';
 
       const block = document.createElement('div');
       block.className = `class-block ${modeClass}`;
       block.style.cssText = `top:${top}px;height:${h}px;left:${left+2}px;width:${dayColW-4}px;border-left:3px solid ${colors[course.code]};`;
       block.dataset.code = course.code;
       block.dataset.name = course.name||'';
-      block.dataset.detail = `${session.day} · ${session.start}–${session.end}\n${session.type} · ${session.mode||'N/A'}\nGroup ${course.group}`;
+      block.dataset.detail = `${session.day} · ${session.start}–${session.end}\n${session.type} · ${session.mode||'N/A'}\nGroup ${course.group}${session.room?'\nRoom: '+session.room:''}`;
 
       if(dur<=60) {
-        block.innerHTML = `<div class="class-code">${course.code}</div><div class="class-details" style="display:flex;gap:5px;justify-content:space-between"><span>${session.type}</span><span>${session.start}–${session.end}</span></div>`;
+        block.innerHTML = `<div class="class-code">${course.code}</div><div class="class-details" style="display:flex;gap:5px;justify-content:space-between"><span>${session.type}</span><span>${session.start}–${session.end}</span></div>${roomHtml}`;
         block.style.display='flex'; block.style.flexDirection='column'; block.style.justifyContent='center';
       } else {
-        block.innerHTML = `<div class="class-code">${course.code}</div><div class="class-details">${session.type}</div><div class="class-details">${session.start} – ${session.end}</div><div class="class-type-badge">${session.mode||'N/A'}</div>`;
+        block.innerHTML = `<div class="class-code">${course.code}</div><div class="class-details">${session.type}</div><div class="class-details">${session.start} – ${session.end}</div><div class="class-type-badge">${session.mode||'N/A'}</div>${roomHtml}`;
       }
       block.addEventListener('mouseenter', showTooltip);
       block.addEventListener('mousemove', moveTooltip);
@@ -509,7 +656,8 @@ function renderList() {
   document.getElementById('listView').innerHTML = s.courses.map(course => {
     const sessions = course.sessions.map(se => {
       const mc = getModeClass(se.mode);
-      return `<div class="session-row"><div class="session-day">${se.day}</div><div class="session-time">${se.start} – ${se.end}</div><div class="session-type">${se.type}</div><span class="mode-badge ${mc}">${se.mode||'N/A'}</span></div>`;
+      const room = se.room ? ` · ${se.room}` : '';
+      return `<div class="session-row"><div class="session-day">${se.day}</div><div class="session-time">${se.start} – ${se.end}</div><div class="session-type">${se.type}${room}</div><span class="mode-badge ${mc}">${se.mode||'N/A'}</span></div>`;
     }).join('');
     return `<div class="course-card animate-in"><div class="course-card-header"><div><div class="course-card-title" style="color:${colors[course.code]}">${course.code}</div><div class="course-card-name">${course.name||''}</div></div><div class="course-card-group">Group ${course.group}</div></div>${sessions}</div>`;
   }).join('');
@@ -537,14 +685,7 @@ function setupEvents() {
     document.getElementById('searchClear').style.display = 'none';
     renderCatalog();
   });
-  document.querySelectorAll('.filter-pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      filterDept = btn.dataset.filter;
-      renderCatalog();
-    });
-  });
+  // filter pills are now set up in buildFilterPills()
   document.getElementById('countDown').addEventListener('click', () => { if(totalPerSchedule>1){totalPerSchedule--;updateConfigInfo();} });
   document.getElementById('countUp').addEventListener('click', () => { if(totalPerSchedule<8){totalPerSchedule++;updateConfigInfo();} });
   document.getElementById('generateBtn').addEventListener('click', runGeneration);
@@ -555,6 +696,47 @@ function setupEvents() {
   document.getElementById('listBtn').addEventListener('click', () => switchView('list'));
   document.getElementById('sortSelect').addEventListener('change', e => sortSchedules(e.target.value));
 
+  // Favorites
+  const favBtn = document.getElementById('favBtn');
+  if(favBtn) favBtn.addEventListener('click', toggleFav);
+  const favFilterBtn = document.getElementById('favFilterBtn');
+  if(favFilterBtn) favFilterBtn.addEventListener('click', toggleFavFilter);
+
+  // Export
+  const exportBtn = document.getElementById('exportBtn');
+  const exportMenu = document.getElementById('exportMenu');
+  if(exportBtn && exportMenu) {
+    exportBtn.addEventListener('click', (e) => { e.stopPropagation(); exportMenu.classList.toggle('open'); });
+    document.addEventListener('click', () => exportMenu.classList.remove('open'));
+    exportMenu.addEventListener('click', e => e.stopPropagation());
+  }
+  const exportCopyBtn = document.getElementById('exportCopy');
+  if(exportCopyBtn) exportCopyBtn.addEventListener('click', () => { exportCopy(); exportMenu.classList.remove('open'); });
+  const exportICSBtn = document.getElementById('exportICS');
+  if(exportICSBtn) exportICSBtn.addEventListener('click', () => { exportICS(); exportMenu.classList.remove('open'); });
+
+  // Jump input
+  const jumpInput = document.getElementById('jumpInput');
+  if(jumpInput) {
+    jumpInput.addEventListener('change', () => {
+      const v = parseInt(jumpInput.value);
+      if(v >= 1 && v <= sorted.length) { idx = v-1; renderSchedule(); }
+      jumpInput.value = '';
+    });
+  }
+
+  // Reset
+  const resetBtn = document.getElementById('resetAllBtn');
+  if(resetBtn) resetBtn.addEventListener('click', () => {
+    requiredCourses = []; optionalCourses = []; courseConstraints = {};
+    globalConstraints = { daysOff: [], noMorning: false, noAfternoon: false, noEvening: false, distanceOnly: false, maxGap: 6 };
+    document.querySelectorAll('.day-pill').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.toggle-row').forEach(el => el.classList.remove('active'));
+    if(document.getElementById('maxGapSlider')){document.getElementById('maxGapSlider').value=6;document.getElementById('maxGapValue').textContent='No limit';}
+    renderSelectionSummary(); renderCatalog();
+    toast('All selections reset', 'info');
+  });
+
   document.addEventListener('keydown', e => {
     if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT') return;
     if(document.getElementById('resultsPhase').classList.contains('active')) {
@@ -562,6 +744,7 @@ function setupEvents() {
       else if(e.key==='ArrowRight') go(1);
       else if(e.key.toLowerCase()==='c') switchView('calendar');
       else if(e.key.toLowerCase()==='l') switchView('list');
+      else if(e.key.toLowerCase()==='f') toggleFav();
       else if(e.key==='Escape') goBack();
     }
   });
@@ -592,25 +775,48 @@ function setupEvents() {
   });
 
   document.querySelectorAll('.day-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      pill.classList.toggle('active');
-    });
+    pill.addEventListener('click', () => { pill.classList.toggle('active'); });
   });
 
   document.querySelectorAll('.toggle-row').forEach(row => {
-    row.addEventListener('click', () => {
-      row.classList.toggle('active');
-    });
+    row.addEventListener('click', () => { row.classList.toggle('active'); });
   });
+
+  // Max gap slider
+  const gapSlider = document.getElementById('maxGapSlider');
+  const gapValue = document.getElementById('maxGapValue');
+  if(gapSlider && gapValue) {
+    gapSlider.addEventListener('input', () => {
+      const v = parseFloat(gapSlider.value);
+      gapValue.textContent = v >= 6 ? 'No limit' : v + 'h';
+    });
+  }
 
   document.getElementById('saveConstraintsBtn').addEventListener('click', () => {
     globalConstraints.daysOff = Array.from(document.querySelectorAll('.day-pill.active')).map(el => el.dataset.day);
     globalConstraints.noMorning = document.getElementById('noMorningToggle').classList.contains('active');
     globalConstraints.noAfternoon = document.getElementById('noAfternoonToggle').classList.contains('active');
     globalConstraints.noEvening = document.getElementById('noEveningToggle').classList.contains('active');
+    globalConstraints.distanceOnly = document.getElementById('distanceOnlyToggle').classList.contains('active');
+    globalConstraints.maxGap = parseFloat(document.getElementById('maxGapSlider').value);
     document.getElementById('constraintsModal').classList.remove('active');
+    updateConstraintBadge();
     toast('Global constraints saved', 'success');
   });
+}
+
+function updateConstraintBadge() {
+  let count = globalConstraints.daysOff.length;
+  if(globalConstraints.noMorning) count++;
+  if(globalConstraints.noAfternoon) count++;
+  if(globalConstraints.noEvening) count++;
+  if(globalConstraints.distanceOnly) count++;
+  if(globalConstraints.maxGap < 6) count++;
+  const badge = document.getElementById('constraintBadge');
+  if(badge) {
+    badge.textContent = count > 0 ? count : '';
+    badge.className = count > 0 ? 'constraint-badge' : '';
+  }
 }
 
 // ─── Public API ───
