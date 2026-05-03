@@ -56,7 +56,7 @@ def discover_semesters(ctx):
     print("Probing ETS server for available semesters...")
     for label, sem_id in sorted(candidates.items()):
         exists = probe_semester(sem_id, ref_prog, ctx)
-        status = "✓ Available" if exists else "✗ Not found"
+        status = "[OK] Available" if exists else "[FAIL] Not found"
         print(f"  {label} ({sem_id}): {status}")
         if exists:
             available[label] = sem_id
@@ -66,32 +66,63 @@ def discover_semesters(ctx):
 
 def download_pdfs(semesters, ctx):
     os.makedirs("pdfs", exist_ok=True)
+    os.makedirs("data", exist_ok=True)
+    
+    sync_state_file = "data/sync_state.json"
+    sync_state = {}
+    if os.path.exists(sync_state_file):
+        with open(sync_state_file, 'r', encoding='utf-8') as f:
+            sync_state = json.load(f)
+            
+    updated_files = []
+
     for sem_label, sem_id in semesters.items():
         for prog_key, prog_info in PROGRAMS.items():
             url = BASE_URL.format(sem=sem_id, prog=prog_info["id"])
             filename = f"pdfs/{sem_label}_{prog_key}.pdf"
-            if os.path.exists(filename):
-                print(f"  [OK] Already exists: {filename}")
-                continue
-            print(f"  Downloading {sem_label} {prog_info['name']}...")
+            file_key = f"{sem_label}_{prog_key}"
+            
             try:
+                # Check Last-Modified header first
+                req = urllib.request.Request(url, method='HEAD')
+                resp = urllib.request.urlopen(req, context=ctx, timeout=10)
+                last_mod = resp.headers.get('Last-Modified', '')
+                
+                if last_mod and sync_state.get(file_key) == last_mod and os.path.exists(f"data/{file_key}.csv"):
+                    print(f"  [SKIP] Unchanged: {sem_label} {prog_info['name']}")
+                    continue
+                    
+                print(f"  Downloading {sem_label} {prog_info['name']}...")
                 urllib.request.urlretrieve(url, filename)
+                sync_state[file_key] = last_mod
+                updated_files.append(file_key)
                 print(f"    [OK] Saved to {filename}")
             except Exception as e:
                 print(f"    [FAIL] {e}")
+                
+    with open(sync_state_file, 'w', encoding='utf-8') as f:
+        json.dump(sync_state, f, indent=2)
+        
+    return updated_files
 
-def parse_all(semesters):
+def parse_all(semesters, updated_files):
     os.makedirs("data", exist_ok=True)
     for sem_label in semesters:
         for prog_key, prog_info in PROGRAMS.items():
-            pdf_path = f"pdfs/{sem_label}_{prog_key}.pdf"
-            csv_path = f"data/{sem_label}_{prog_key}.csv"
-            if os.path.exists(csv_path):
-                print(f"  [OK] Already parsed: {csv_path}")
+            file_key = f"{sem_label}_{prog_key}"
+            pdf_path = f"pdfs/{file_key}.pdf"
+            csv_path = f"data/{file_key}.csv"
+            
+            # If we didn't just download it and the CSV already exists, skip parsing
+            if file_key not in updated_files and os.path.exists(csv_path):
                 continue
+                
             if not os.path.exists(pdf_path):
-                print(f"  [FAIL] PDF missing: {pdf_path}")
+                # Only warn if it's supposed to be there but isn't
+                if file_key in updated_files:
+                    print(f"  [FAIL] PDF missing for parsing: {pdf_path}")
                 continue
+                
             print(f"  Parsing {sem_label} {prog_info['name']}...")
             try:
                 df = extract_course_info(pdf_path)
@@ -164,10 +195,13 @@ if __name__ == "__main__":
         print("\n⚠ No semesters found! Check your internet connection.")
     else:
         print(f"\n=== Downloading PDFs ({len(semesters)} semesters × {len(PROGRAMS)} programs) ===")
-        download_pdfs(semesters, ctx)
+        updated_files = download_pdfs(semesters, ctx)
         
-        print("\n=== Parsing PDFs to CSV ===")
-        parse_all(semesters)
+        if updated_files:
+            print("\n=== Parsing Updated PDFs to CSV ===")
+            parse_all(semesters, updated_files)
+        else:
+            print("\n=== No new PDFs to parse ===")
     
     print("\n=== Generating Manifest ===")
     generate_manifest(semesters)
