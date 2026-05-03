@@ -112,6 +112,30 @@ function parseCSVData(csv) {
     if (!allCourses[code].groups[grp]) allCourses[code].groups[grp] = [];
     allCourses[code].groups[grp].push({ day, start, end, type: type||'', mode: mode||'', room: room||'' });
   }
+  // Post-process: fill empty modes by inheriting from same group's lecture, or same course
+  for (const code in allCourses) {
+    for (const grp in allCourses[code].groups) {
+      const sessions = allCourses[code].groups[grp];
+      // Find the mode from sessions that have one (prefer Lecture type)
+      let groupMode = '';
+      for (const s of sessions) {
+        if (s.mode) { groupMode = s.mode; if (s.type === 'Lecture') break; }
+      }
+      // If no mode found in this group, check other groups of the same course
+      if (!groupMode) {
+        for (const g2 in allCourses[code].groups) {
+          for (const s of allCourses[code].groups[g2]) {
+            if (s.mode) { groupMode = s.mode; break; }
+          }
+          if (groupMode) break;
+        }
+      }
+      // Apply to empty sessions
+      if (groupMode) {
+        for (const s of sessions) { if (!s.mode) s.mode = groupMode; }
+      }
+    }
+  }
 }
 
 // ─── Dynamic Filters ───
@@ -822,6 +846,55 @@ function updateConstraintBadge() {
 // ─── Public API ───
 window._app = { addCourse, removeCourse, toggleGroup };
 
+// ─── Manifest & Dynamic Dropdowns ───
+let manifest = null;
+
+async function loadManifest() {
+  try {
+    const r = await fetch('data/manifest.json');
+    if (!r.ok) throw new Error('Manifest not found');
+    manifest = await r.json();
+    populateSemesters();
+    toast('Course data loaded', 'info');
+  } catch(e) {
+    console.warn('Manifest load failed, using fallback:', e);
+    // Fallback: hardcoded options
+    const semSel = document.getElementById('semesterSelect');
+    semSel.innerHTML = '<option value="A-2026">Automne 2026</option><option value="E-2026">Été 2026</option><option value="H-2026">Hiver 2026</option>';
+    const progSel = document.getElementById('programSelect');
+    progSel.innerHTML = '<option value="log">Génie logiciel</option><option value="gti">Génie des TI</option><option value="ele">Génie électrique</option><option value="mec">Génie mécanique</option><option value="ctn">Génie de la construction</option><option value="gol">Génie des opérations</option><option value="aer">Génie aérospatial</option><option value="gpa">Génie de la production</option><option value="inf">Informatique distribuée</option><option value="ux">Design UX</option>';
+  }
+}
+
+function populateSemesters() {
+  const semSel = document.getElementById('semesterSelect');
+  // Sort: most recent first (by year desc, then season order A > E > H)
+  const seasonOrder = { A: 0, E: 1, H: 2 };
+  const sorted = [...manifest.semesters].sort((a, b) => {
+    if (b.year !== a.year) return b.year - a.year;
+    return seasonOrder[a.season] - seasonOrder[b.season];
+  });
+  semSel.innerHTML = sorted.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  // Update programs for selected semester
+  populatePrograms();
+  semSel.addEventListener('change', populatePrograms);
+}
+
+function populatePrograms() {
+  const semId = document.getElementById('semesterSelect').value;
+  const progSel = document.getElementById('programSelect');
+  // Find which programs have data for this semester
+  const availProgs = new Set(manifest.available.filter(a => a.semester === semId).map(a => a.program));
+  const progs = manifest.programs.filter(p => availProgs.has(p.id));
+  if (progs.length === 0) {
+    progSel.innerHTML = '<option value="">No programs available</option>';
+    return;
+  }
+  progs.sort((a, b) => a.name.localeCompare(b.name));
+  progSel.innerHTML = progs.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+}
+
 // ─── Init ───
 setupEvents();
+loadManifest();
 })();

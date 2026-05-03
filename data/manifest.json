@@ -1,0 +1,257 @@
+{
+  "generated": "2026-05-03T14:56:57.827255",
+  "semesters": [
+    {
+      "id": "A-2026",
+      "name": "Automne 2026",
+      "season": "A",
+      "year": 2026
+    },
+    {
+      "id": "E-2026",
+      "name": "Été 2026",
+      "season": "E",
+      "year": 2026
+    },
+    {
+      "id": "H-2026",
+      "name": "Hiver 2026",
+      "season": "H",
+      "year": 2026
+    }
+  ],
+  "programs": [
+    {
+      "id": "aer",
+      "name": "Génie aérospatial",
+      "etsId": "6522"
+    },
+    {
+      "id": "ctn",
+      "name": "Génie de la construction",
+      "etsId": "7625"
+    },
+    {
+      "id": "ele",
+      "name": "Génie électrique",
+      "etsId": "7694"
+    },
+    {
+      "id": "gol",
+      "name": "Génie des opérations et de la logistique",
+      "etsId": "6556"
+    },
+    {
+      "id": "gpa",
+      "name": "Génie de la production automatisée",
+      "etsId": "6557"
+    },
+    {
+      "id": "gti",
+      "name": "Génie des technologies de l'information",
+      "etsId": "7086"
+    },
+    {
+      "id": "inf",
+      "name": "Informatique distribuée",
+      "etsId": "6646"
+    },
+    {
+      "id": "log",
+      "name": "Génie logiciel",
+      "etsId": "7084"
+    },
+    {
+      "id": "mec",
+      "name": "Génie mécanique",
+      "etsId": "7684"
+    },
+    {
+      "id": "ux",
+      "name": "Design UX",
+      "etsId": "6599"
+    }
+  ],
+  "available": [
+    {
+      "semester": "A-2026",
+      "program": "aer",
+      "file": "A-2026_aer.csv",
+      "size": 18180
+    },
+    {
+      "semester": "A-2026",
+      "program": "ctn",
+      "file": "A-2026_ctn.csv",
+      "size": 27057
+    },
+    {
+      "semester": "A-2026",
+      "program": "ele",
+      "file": "A-2026_ele.csv",
+      "size": 29847
+    },
+    {
+      "semester": "A-2026",
+      "program": "gol",
+      "file": "A-2026_gol.csv",
+      "size": 24401
+    },
+    {
+      "semester": "A-2026",
+      "program": "gpa",
+      "file": "A-2026_gpa.csv",
+      "size": 27928
+    },
+    {
+      "semester": "A-2026",
+      "program": "gti",
+      "file": "A-2026_gti.csv",
+      "size": 32162
+    },
+    {
+      "semester": "A-2026",
+      "program": "inf",
+      "file": "A-2026_inf.csv",
+      "size": 12626
+    },
+    {
+      "semester": "A-2026",
+      "program": "log",
+      "file": "A-2026_log.csv",
+      "size": 32448
+    },
+    {
+      "semester": "A-2026",
+      "program": "mec",
+      "file": "A-2026_mec.csv",
+      "size": 31963
+    },
+    {
+      "semester": "A-2026",
+      "program": "ux",
+      "file": "A-2026_ux.csv",
+      "size": 2072
+    },
+    {
+      "semester": "E-2026",
+      "program": "aer",
+      "file": "E-2026_aer.csv",
+      "size": 15837
+    },
+    {
+      "semester": "E-2026",
+      "program": "ctn",
+      "file": "E-2026_ctn.csv",
+      "size": 18301
+    },
+    {
+      "semester": "E-2026",
+      "program": "ele",
+      "file": "E-2026_ele.csv",
+      "size": 18385
+    },
+    {
+      "semester": "E-2026",
+      "program": "gol",
+      "file": "E-2026_gol.csv",
+      "size": 15195
+    },
+    {
+      "semester": "E-2026",
+      "program": "gpa",
+      "file": "E-2026_gpa.csv",
+      "size": 17876
+    },
+    {
+      "semester": "E-2026",
+      "program": "gti",
+      "file": "E-2026_gti.csv",
+      "size": 19979
+    },
+    {
+      "semester": "E-2026",
+      "program": "inf",
+      "file": "E-2026_inf.csv",
+      "size": 6526
+    },
+    {
+      "semester": "E-2026",
+      "program": "log",
+      "file": "E-2026_log.csv",
+      "size": 21418
+    },
+    {
+      "semester": "E-2026",
+      "program": "mec",
+      "file": "E-2026_mec.csv",
+      "size": 20570
+    },
+    {
+      "semester": "E-2026",
+      "program": "ux",
+      "file": "E-2026_ux.csv",
+      "size": 401
+    },
+    {
+      "semester": "H-2026",
+      "program": "aer",
+      "file": "H-2026_aer.csv",
+      "size": 23285
+    },
+    {
+      "semester": "H-2026",
+      "program": "ctn",
+      "file": "H-2026_ctn.csv",
+      "size": 28719
+    },
+    {
+      "semester": "H-2026",
+      "program": "ele",
+      "file": "H-2026_ele.csv",
+      "size": 27302
+    },
+    {
+      "semester": "H-2026",
+      "program": "gol",
+      "file": "H-2026_gol.csv",
+      "size": 21985
+    },
+    {
+      "semester": "H-2026",
+      "program": "gpa",
+      "file": "H-2026_gpa.csv",
+      "size": 25369
+    },
+    {
+      "semester": "H-2026",
+      "program": "gti",
+      "file": "H-2026_gti.csv",
+      "size": 32392
+    },
+    {
+      "semester": "H-2026",
+      "program": "inf",
+      "file": "H-2026_inf.csv",
+      "size": 10042
+    },
+    {
+      "semester": "H-2026",
+      "program": "log",
+      "file": "H-2026_log.csv",
+      "size": 33205
+    },
+    {
+      "semester": "H-2026",
+      "program": "mec",
+      "file": "H-2026_mec.csv",
+      "size": 30340
+    },
+    {
+      "semester": "H-2026",
+      "program": "ux",
+      "file": "H-2026_ux.csv",
+      "size": 1216
+    }
+  ]
+}
