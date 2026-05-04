@@ -107,8 +107,12 @@ function parseCSVData(csv) {
     vals.push(cur.trim());
     const [, code, name, grp, day, start, end, type, mode, room] = vals;
     if (!code || !day || !start) continue;
-    if (!allCourses[code]) allCourses[code] = { name: name || '', groups: {} };
-    if (name && name.length > allCourses[code].name.length) allCourses[code].name = name;
+    
+    let cleanName = name ? name.trim() : '';
+    if (cleanName === '/' || cleanName === '\\') cleanName = '';
+
+    if (!allCourses[code]) allCourses[code] = { name: cleanName, groups: {} };
+    if (cleanName && cleanName.length > allCourses[code].name.length) allCourses[code].name = cleanName;
     if (!allCourses[code].groups[grp]) allCourses[code].groups[grp] = [];
     allCourses[code].groups[grp].push({ day, start, end, type: type||'', mode: mode||'', room: room||'' });
   }
@@ -354,7 +358,7 @@ function renderCatalog() {
             ${[...modes].map(m => `<span class="mode-tag ${getModeClass(m)}">${m}</span>`).join('')}
           </div>
         </div>
-        <div class="catalog-card-name">${c.name}</div>
+        <div class="catalog-card-name">${c.name || '<i>[Nom de cours non disponible]</i>'}</div>
         <div class="catalog-card-info">
           <div class="card-schedule-preview">${dayDots}</div>
           <div class="catalog-card-stats">
@@ -1002,14 +1006,7 @@ function populateSemesters() {
   const semSel = document.getElementById('semesterSelect');
   const seasonOrder = { A: 0, E: 1, H: 2 };
   
-  // Filter semesters to keep only E-2026, A-2026 and future ones
-  const filteredSemesters = manifest.semesters.filter(s => {
-    if (s.year > 2026) return true;
-    if (s.year === 2026 && (s.season === 'E' || s.season === 'A')) return true;
-    return false;
-  });
-
-  const sorted = filteredSemesters.sort((a, b) => {
+  const sorted = manifest.semesters.sort((a, b) => {
     if (b.year !== a.year) return b.year - a.year;
     return seasonOrder[a.season] - seasonOrder[b.season];
   });

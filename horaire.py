@@ -53,7 +53,7 @@ def parse_page_text(text, page_num):
         
         # Pattern 1: Course code and name on same line
         # Example: CHM131 CHIMIE ET MATÉRIAUX
-        course_match = re.match(r'^([A-Z]{3}\d{3})\s+(.+)$', line)
+        course_match = re.match(r'^([A-Z]{3}\d{3})\s+([A-ZÀ-Ÿ].*)$', line)
         
         if course_match:
             current_course_code = course_match.group(1)
