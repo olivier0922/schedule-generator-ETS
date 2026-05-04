@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-03T22:47:09.604417",
+  "generated": "2026-05-04T06:18:32.136224",
   "semesters": [
     {
       "id": "A-2025",
@@ -101,337 +101,337 @@
       "semester": "A-2025",
       "program": "aer",
       "file": "A-2025_aer.csv",
-      "size": 21020
+      "size": 20787
     },
     {
       "semester": "A-2025",
       "program": "ctn",
       "file": "A-2025_ctn.csv",
-      "size": 27705
+      "size": 27394
     },
     {
       "semester": "A-2025",
       "program": "ele",
       "file": "A-2025_ele.csv",
-      "size": 30394
+      "size": 30055
     },
     {
       "semester": "A-2025",
       "program": "gol",
       "file": "A-2025_gol.csv",
-      "size": 26193
+      "size": 25906
     },
     {
       "semester": "A-2025",
       "program": "gpa",
       "file": "A-2025_gpa.csv",
-      "size": 30660
+      "size": 30321
     },
     {
       "semester": "A-2025",
       "program": "gti",
       "file": "A-2025_gti.csv",
-      "size": 33275
+      "size": 32906
     },
     {
       "semester": "A-2025",
       "program": "inf",
       "file": "A-2025_inf.csv",
-      "size": 13372
+      "size": 13224
     },
     {
       "semester": "A-2025",
       "program": "log",
       "file": "A-2025_log.csv",
-      "size": 34540
+      "size": 34156
     },
     {
       "semester": "A-2025",
       "program": "mec",
       "file": "A-2025_mec.csv",
-      "size": 35711
+      "size": 35323
     },
     {
       "semester": "A-2025",
       "program": "ux",
       "file": "A-2025_ux.csv",
-      "size": 1251
+      "size": 1236
     },
     {
       "semester": "A-2026",
       "program": "aer",
       "file": "A-2026_aer.csv",
-      "size": 18180
+      "size": 17967
     },
     {
       "semester": "A-2026",
       "program": "ctn",
       "file": "A-2026_ctn.csv",
-      "size": 27337
+      "size": 27011
     },
     {
       "semester": "A-2026",
       "program": "ele",
       "file": "A-2026_ele.csv",
-      "size": 29985
+      "size": 29631
     },
     {
       "semester": "A-2026",
       "program": "gol",
       "file": "A-2026_gol.csv",
-      "size": 24401
+      "size": 24121
     },
     {
       "semester": "A-2026",
       "program": "gpa",
       "file": "A-2026_gpa.csv",
-      "size": 27928
+      "size": 27603
     },
     {
       "semester": "A-2026",
       "program": "gti",
       "file": "A-2026_gti.csv",
-      "size": 32316
+      "size": 31937
     },
     {
       "semester": "A-2026",
       "program": "inf",
       "file": "A-2026_inf.csv",
-      "size": 12672
+      "size": 12526
     },
     {
       "semester": "A-2026",
       "program": "log",
       "file": "A-2026_log.csv",
-      "size": 32602
+      "size": 32218
     },
     {
       "semester": "A-2026",
       "program": "mec",
       "file": "A-2026_mec.csv",
-      "size": 31963
+      "size": 31596
     },
     {
       "semester": "A-2026",
       "program": "ux",
       "file": "A-2026_ux.csv",
-      "size": 2072
+      "size": 2047
     },
     {
       "semester": "E-2025",
       "program": "ctn",
       "file": "E-2025_ctn.csv",
-      "size": 17238
+      "size": 17041
     },
     {
       "semester": "E-2025",
       "program": "ele",
       "file": "E-2025_ele.csv",
-      "size": 18045
+      "size": 17842
     },
     {
       "semester": "E-2025",
       "program": "gol",
       "file": "E-2025_gol.csv",
-      "size": 14355
+      "size": 14199
     },
     {
       "semester": "E-2025",
       "program": "gpa",
       "file": "E-2025_gpa.csv",
-      "size": 17300
+      "size": 17108
     },
     {
       "semester": "E-2025",
       "program": "gti",
       "file": "E-2025_gti.csv",
-      "size": 20890
+      "size": 20656
     },
     {
       "semester": "E-2025",
       "program": "inf",
       "file": "E-2025_inf.csv",
-      "size": 7643
+      "size": 7558
     },
     {
       "semester": "E-2025",
       "program": "log",
       "file": "E-2025_log.csv",
-      "size": 22340
+      "size": 22089
     },
     {
       "semester": "E-2025",
       "program": "mec",
       "file": "E-2025_mec.csv",
-      "size": 19811
+      "size": 19594
     },
     {
       "semester": "E-2026",
       "program": "aer",
       "file": "E-2026_aer.csv",
-      "size": 15837
+      "size": 15665
     },
     {
       "semester": "E-2026",
       "program": "ctn",
       "file": "E-2026_ctn.csv",
-      "size": 18525
+      "size": 18316
     },
     {
       "semester": "E-2026",
       "program": "ele",
       "file": "E-2026_ele.csv",
-      "size": 18523
+      "size": 18316
     },
     {
       "semester": "E-2026",
       "program": "gol",
       "file": "E-2026_gol.csv",
-      "size": 15195
+      "size": 15032
     },
     {
       "semester": "E-2026",
       "program": "gpa",
       "file": "E-2026_gpa.csv",
-      "size": 17876
+      "size": 17679
     },
     {
       "semester": "E-2026",
       "program": "gti",
       "file": "E-2026_gti.csv",
-      "size": 20104
+      "size": 19880
     },
     {
       "semester": "E-2026",
       "program": "inf",
       "file": "E-2026_inf.csv",
-      "size": 6572
+      "size": 6498
     },
     {
       "semester": "E-2026",
       "program": "log",
       "file": "E-2026_log.csv",
-      "size": 21543
+      "size": 21302
     },
     {
       "semester": "E-2026",
       "program": "mec",
       "file": "E-2026_mec.csv",
-      "size": 20570
+      "size": 20347
     },
     {
       "semester": "E-2026",
       "program": "ux",
       "file": "E-2026_ux.csv",
-      "size": 401
+      "size": 396
     },
     {
       "semester": "H-2025",
       "program": "ctn",
       "file": "H-2025_ctn.csv",
-      "size": 29507
+      "size": 29171
     },
     {
       "semester": "H-2025",
       "program": "ele",
       "file": "H-2025_ele.csv",
-      "size": 26353
+      "size": 26059
     },
     {
       "semester": "H-2025",
       "program": "gol",
       "file": "H-2025_gol.csv",
-      "size": 22218
+      "size": 21976
     },
     {
       "semester": "H-2025",
       "program": "gpa",
       "file": "H-2025_gpa.csv",
-      "size": 25453
+      "size": 25171
     },
     {
       "semester": "H-2025",
       "program": "gti",
       "file": "H-2025_gti.csv",
-      "size": 31766
+      "size": 31409
     },
     {
       "semester": "H-2025",
       "program": "inf",
       "file": "H-2025_inf.csv",
-      "size": 9637
+      "size": 9528
     },
     {
       "semester": "H-2025",
       "program": "log",
       "file": "H-2025_log.csv",
-      "size": 32664
+      "size": 32296
     },
     {
       "semester": "H-2025",
       "program": "mec",
       "file": "H-2025_mec.csv",
-      "size": 29802
+      "size": 29476
     },
     {
       "semester": "H-2026",
       "program": "aer",
       "file": "H-2026_aer.csv",
-      "size": 23285
+      "size": 23029
     },
     {
       "semester": "H-2026",
       "program": "ctn",
       "file": "H-2026_ctn.csv",
-      "size": 29099
+      "size": 28770
     },
     {
       "semester": "H-2026",
       "program": "ele",
       "file": "H-2026_ele.csv",
-      "size": 27578
+      "size": 27272
     },
     {
       "semester": "H-2026",
       "program": "gol",
       "file": "H-2026_gol.csv",
-      "size": 21985
+      "size": 21747
     },
     {
       "semester": "H-2026",
       "program": "gpa",
       "file": "H-2026_gpa.csv",
-      "size": 25369
+      "size": 25088
     },
     {
       "semester": "H-2026",
       "program": "gti",
       "file": "H-2026_gti.csv",
-      "size": 32530
+      "size": 32167
     },
     {
       "semester": "H-2026",
       "program": "inf",
       "file": "H-2026_inf.csv",
-      "size": 10180
+      "size": 10065
     },
     {
       "semester": "H-2026",
       "program": "log",
       "file": "H-2026_log.csv",
-      "size": 33343
+      "size": 32970
     },
     {
       "semester": "H-2026",
       "program": "mec",
       "file": "H-2026_mec.csv",
-      "size": 30340
+      "size": 30008
     },
     {
       "semester": "H-2026",
       "program": "ux",
       "file": "H-2026_ux.csv",
-      "size": 1216
+      "size": 1202
     }
   ]
 }
