@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="hero-bg"></div>
     <div class="app">
         <header class="app-header">
             <div class="header-badge" id="headerBadge">Program Selection</div>
@@ -35,6 +36,18 @@
                     <button id="loadProgramBtn" class="generate-btn ready" style="width:100%;justify-content:center;margin-top:16px">Load Courses</button>
                 </div>
             </div>
+            <div class="feature-cards">
+                <div class="feature-card"><span class="feature-icon">🎯</span><div class="feature-title">Smart Sorting</div><div class="feature-desc">Sort by compactness, gaps, start time, or distance mode</div></div>
+                <div class="feature-card"><span class="feature-icon">📅</span><div class="feature-title">Export to Calendar</div><div class="feature-desc">One-click export to Google or Apple Calendar</div></div>
+                <div class="feature-card"><span class="feature-icon">⚙️</span><div class="feature-title">Custom Constraints</div><div class="feature-desc">Block days off, set time preferences, limit gaps</div></div>
+            </div>
+            <div class="steps-row">
+                <div class="step-item"><span class="step-num">1</span>Select courses</div>
+                <span class="step-arrow">→</span>
+                <div class="step-item"><span class="step-num">2</span>Generate</div>
+                <span class="step-arrow">→</span>
+                <div class="step-item"><span class="step-num">3</span>Compare & export</div>
+            </div>
         </div>
 
         <!-- Loading -->
@@ -51,6 +64,7 @@
 
         <!-- PHASE: SELECTION -->
         <div id="selectionPhase" class="phase">
+            <div id="restoreBanner" style="display:none"></div>
             <div class="selection-top-nav" style="margin-bottom:16px">
                 <button class="back-btn" id="backToConfigBtn">← Change Program</button>
                 <button class="reset-btn" id="resetAllBtn" style="margin-left:auto">🗑 Reset All</button>
@@ -88,6 +102,7 @@
                     </div>
                     <button class="add-btn opt-btn" id="openConstraintsBtn" style="height:32px;padding:0 12px;margin-left:auto">⚙️ Constraints <span id="constraintBadge"></span></button>
                     <div class="config-info" id="configInfo">Select courses to begin</div>
+                    <div id="compatInfo" style="display:none"></div>
                     <button class="generate-btn" id="generateBtn" disabled>⚡ Generate Schedules</button>
                 </div>
             </div>
@@ -125,13 +140,12 @@
                 <div class="nav-group">
                     <label>Sort</label>
                     <select class="sort-select" id="sortSelect">
-                        <option value="score">Best score</option>
-                        <option value="default">Default order</option>
+                        <option value="compact">Most compact</option>
+                        <option value="gaps">Least gaps</option>
+                        <option value="earliest">Latest start</option>
                         <option value="distance-desc">Most distance</option>
                         <option value="distance-asc">Least distance</option>
-                        <option value="compact">Most compact</option>
-                        <option value="earliest">Latest start</option>
-                        <option value="gaps">Least gaps</option>
+                        <option value="default">Default order</option>
                     </select>
                 </div>
                 <div class="nav-group">
@@ -157,29 +171,53 @@
                 </div>
             </nav>
 
-            <div class="score-container" id="scoreBar">
-                <span class="score-label">Schedule Score</span>
-                <div class="score-track"><div class="score-fill" id="scoreFill" style="width:0%"></div></div>
-                <span class="score-value" id="scoreValue">0</span>
-                <button class="fav-btn" id="favBtn" title="Add to favorites">⭐</button>
-            </div>
+            <div class="results-layout">
+                <aside class="results-sidebar">
+                    <div class="sidebar-section score-section">
+                        <div class="score-card">
+                            <div class="score-gauge" id="scoreGauge">
+                                <svg width="80" height="80" viewBox="0 0 80 80">
+                                    <circle class="score-gauge-bg" cx="40" cy="40" r="36"></circle>
+                                    <circle class="score-gauge-fill" id="scoreArc" cx="40" cy="40" r="36" stroke-dasharray="226.19" stroke-dashoffset="226.19"></circle>
+                                </svg>
+                                <div class="score-gauge-text" id="scoreText">0</div>
+                            </div>
+                            <div class="score-title">Schedule Score</div>
+                        </div>
+                        <button class="sidebar-fav-btn" id="favBtn" title="Add to favorites (F)">⭐ Favorite</button>
+                    </div>
 
-            <div class="stats-row" id="stats"></div>
-            <div class="day-breakdown" id="dayBreakdown"></div>
-            <div class="course-chips" id="courseChips"></div>
+                    <div class="sidebar-section">
+                        <h3>Overview</h3>
+                        <div class="mini-stats" id="miniStats"></div>
+                    </div>
 
-            <div id="calendarView" class="calendar-view">
-                <div class="legend-bar">
-                    <div class="legend-item"><div class="legend-dot" style="background:#6c63ff"></div> In-Person</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#00d4aa"></div> Distance</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#ff6b9d"></div> Hybrid</div>
-                </div>
-                <div class="calendar-container" id="calendarContainer"></div>
-            </div>
+                    <div class="sidebar-section">
+                        <h3>Courses Included</h3>
+                        <div class="course-blocks" id="courseBlocks"></div>
+                    </div>
 
-            <div id="listView" class="list-view"></div>
-            <div class="keyboard-hint">
-                <kbd>←</kbd> <kbd>→</kbd> navigate &nbsp;·&nbsp; <kbd>C</kbd> calendar &nbsp;·&nbsp; <kbd>L</kbd> list &nbsp;·&nbsp; <kbd>F</kbd> favorite &nbsp;·&nbsp; <kbd>Esc</kbd> back
+                    <div class="sidebar-section">
+                        <h3>Daily Load</h3>
+                        <div class="compact-day-breakdown" id="compactDayBreakdown"></div>
+                    </div>
+                </aside>
+
+                <main class="results-main">
+                    <div id="calendarView" class="calendar-view">
+                        <div class="legend-bar">
+                            <div class="legend-item"><div class="legend-dot in-person"></div> In-Person</div>
+                            <div class="legend-item"><div class="legend-dot online"></div> Distance</div>
+                            <div class="legend-item"><div class="legend-dot hybrid"></div> Hybrid</div>
+                        </div>
+                        <div class="calendar-container" id="calendarContainer"></div>
+                    </div>
+
+                    <div id="listView" class="list-view"></div>
+                    <div class="keyboard-hint">
+                        <kbd>←</kbd> <kbd>→</kbd> navigate &nbsp;·&nbsp; <kbd>C</kbd> calendar &nbsp;·&nbsp; <kbd>L</kbd> list &nbsp;·&nbsp; <kbd>F</kbd> favorite &nbsp;·&nbsp; <kbd>Esc</kbd> back
+                    </div>
+                </main>
             </div>
         </div>
 

@@ -14,7 +14,7 @@ let slideDir = 'left';
 
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
 const DAY_SHORT = ['Mon','Tue','Wed','Thu','Fri'];
-const COLORS = ['#6c63ff','#00d4aa','#ff6b9d','#ffa94d','#45b7d1','#96e6a1','#dda0dd','#f0e68c'];
+const COLORS = ['#7c6cf6','#2dd4a0','#f472b6','#f5a623','#38bdf8','#a3e635','#c084fc','#fb923c'];
 const slots = [];
 for (let h = 8; h <= 23; h++) { slots.push(`${String(h).padStart(2,'0')}:00`); if (h < 23) slots.push(`${String(h).padStart(2,'0')}:30`); }
 
@@ -133,6 +133,9 @@ function parseCSVData(csv) {
       // Apply to empty sessions
       if (groupMode) {
         for (const s of sessions) { if (!s.mode) s.mode = groupMode; }
+      } else {
+        // Default to In-person if no mode found anywhere
+        for (const s of sessions) { if (!s.mode) s.mode = 'In-person'; }
       }
     }
   }
@@ -273,7 +276,7 @@ function runGeneration() {
       }))
     }));
     sorted = [...schedules];
-    sorted.sort((a,b) => calcScore(b)-calcScore(a));
+    sorted.sort((a,b) => getActiveDays(a)-getActiveDays(b));
     idx = 0;
     toast(`Found ${schedules.length} valid schedule(s)!`, 'success');
     showResults();
@@ -323,30 +326,62 @@ function renderCatalog() {
     const c = allCourses[code];
     const nGroups = Object.keys(c.groups).length;
     const modes = new Set();
-    Object.values(c.groups).forEach(sessions => sessions.forEach(s => { if (s.mode) modes.add(s.mode); }));
+    const classDays = new Set();
+    let totalMins = 0;
+    Object.values(c.groups).forEach(sessions => sessions.forEach(s => {
+      if (s.mode) modes.add(s.mode);
+      classDays.add(s.day);
+      totalMins += parseTime(s.end) - parseTime(s.start);
+    }));
+    const avgHrs = (totalMins / nGroups / 60).toFixed(1);
     const isReq = requiredCourses.includes(code);
     const isOpt = optionalCourses.includes(code);
     const selected = isReq || isOpt;
+    const dayDots = ['M','T','W','T','F'].map((d,i) => {
+      const full = DAYS[i];
+      return `<div class="card-day-dot ${classDays.has(full)?'has-class':''}">${d}</div>`;
+    }).join('');
+
+    const allGroups = Object.keys(c.groups);
+    const activeGroups = courseConstraints[code] ? courseConstraints[code].allowedGroups : allGroups;
+    const groupLabel = activeGroups.length === allGroups.length ? `All ${nGroups}` : `${activeGroups.length}/${nGroups}`;
 
     return `<div class="catalog-card ${selected?'selected':''}" data-code="${code}">
-      <div class="catalog-card-header">
-        <span class="catalog-card-code">${code}</span>
-        <span class="catalog-card-groups">${nGroups} grp${nGroups>1?'s':''}</span>
+      <div class="catalog-card-top">
+        <div class="catalog-card-header">
+          <span class="catalog-card-code">${code}</span>
+          <div class="catalog-card-badges">
+            ${[...modes].map(m => `<span class="mode-tag ${getModeClass(m)}">${m}</span>`).join('')}
+          </div>
+        </div>
+        <div class="catalog-card-name">${c.name}</div>
+        <div class="catalog-card-info">
+          <div class="card-schedule-preview">${dayDots}</div>
+          <div class="catalog-card-stats">
+            <span class="card-stat">${avgHrs}h/wk</span>
+            <span class="card-stat-sep">·</span>
+            <span class="card-stat">${groupLabel} grps</span>
+          </div>
+        </div>
       </div>
-      <div class="catalog-card-name">${c.name}</div>
-      <div class="catalog-card-meta">
-        ${[...modes].map(m => `<span class="mode-tag ${getModeClass(m)}">${m}</span>`).join('')}
+      <div class="catalog-card-bottom">
+        <div class="catalog-card-actions">
+          <button class="add-btn req-btn" ${selected?'disabled':''} onclick="window._app.addCourse('${code}','required')">+ Required</button>
+          <button class="add-btn opt-btn" ${selected?'disabled':''} onclick="window._app.addCourse('${code}','optional')">+ Optional</button>
+        </div>
+        ${nGroups > 1 ? `<button class="group-btn" onclick="window._app.toggleGroupOverlay('${code}', true)">Configure Groups <span class="group-toggle-count">${groupLabel}</span></button>` : ''}
       </div>
-      <div class="catalog-card-actions">
-        <button class="add-btn req-btn" ${selected?'disabled':''} onclick="window._app.addCourse('${code}','required')">+ Required</button>
-        <button class="add-btn opt-btn" ${selected?'disabled':''} onclick="window._app.addCourse('${code}','optional')">+ Optional</button>
-      </div>
-      <div class="group-chips-container">
-        <div class="group-chips-header">Allowed Groups</div>
+      
+      <!-- Group Selection Overlay -->
+      <div class="group-overlay" id="group-overlay-${code}">
+        <div class="group-overlay-header">
+          <span class="group-overlay-title">Allowed Groups</span>
+          <button class="group-overlay-close" onclick="window._app.toggleGroupOverlay('${code}', false)">×</button>
+        </div>
         <div class="group-chips-list">
-          ${Object.keys(c.groups).map(g => {
-            const isActive = !courseConstraints[code] || courseConstraints[code].allowedGroups.includes(g);
-            return `<div class="group-chip ${isActive ? 'active' : ''}" onclick="window._app.toggleGroup('${code}', '${g}')">Gr.${g}</div>`;
+          ${allGroups.map(g => {
+            const isActive = activeGroups.includes(g);
+            return `<div class="group-chip ${isActive ? 'active' : ''}" onclick="event.stopPropagation();window._app.toggleGroup('${code}', '${g}')">Gr.${g}</div>`;
           }).join('')}
         </div>
       </div>
@@ -355,6 +390,14 @@ function renderCatalog() {
 }
 
 // ─── Selection Management ───
+function toggleGroupOverlay(code, show) {
+  const overlay = document.getElementById(`group-overlay-${code}`);
+  if (overlay) {
+    if (show) overlay.classList.add('open');
+    else overlay.classList.remove('open');
+  }
+}
+
 function addCourse(code, type) {
   if (requiredCourses.includes(code) || optionalCourses.includes(code)) return;
   if (type === 'required') requiredCourses.push(code);
@@ -434,6 +477,7 @@ function showResults() {
   document.getElementById('resultsPhase').classList.add('active');
   document.querySelector('.app-header p').textContent = `${sorted.length} schedule${sorted.length>1?'s':''} found — browse & compare`;
   updateFavUI();
+  switchView(view);
   renderSchedule();
 }
 
@@ -532,7 +576,6 @@ function getGapMinutes(s) {
 function sortSchedules(method) {
   sorted = showOnlyFavs ? schedules.filter(s => favorites.has(s.id)) : [...schedules];
   switch(method) {
-    case 'score': sorted.sort((a,b) => calcScore(b)-calcScore(a)); break;
     case 'distance-desc': sorted.sort((a,b) => getDistanceCount(b)-getDistanceCount(a)); break;
     case 'distance-asc': sorted.sort((a,b) => getDistanceCount(a)-getDistanceCount(b)); break;
     case 'compact': sorted.sort((a,b) => getActiveDays(a)-getActiveDays(b)); break;
@@ -545,19 +588,15 @@ function sortSchedules(method) {
 function renderSchedule() {
   document.getElementById('scheduleCounter').innerHTML = `${idx+1} <span>/ ${sorted.length}</span>`;
   const s = sorted[idx];
-  // Fav button
   const fb = document.getElementById('favBtn');
   if(fb) fb.classList.toggle('active', favorites.has(s?.id));
-  // Score
-  const score = s ? calcScore(s) : 0;
-  const sf = document.getElementById('scoreFill'); if(sf) sf.style.width = score+'%';
-  const sv = document.getElementById('scoreValue'); if(sv) sv.textContent = score;
-  renderStats(); renderDayBreakdown(); renderChips(); renderCalendar(); renderList();
+
+  renderMiniStats(); renderCompactDayBreakdown(); renderCourseBlocks(); renderCalendar(); renderList();
 }
 
-function renderDayBreakdown() {
+function renderCompactDayBreakdown() {
   const s = sorted[idx]; if(!s) return;
-  const el = document.getElementById('dayBreakdown'); if(!el) return;
+  const el = document.getElementById('compactDayBreakdown'); if(!el) return;
   const allDays = [...DAYS];
   s.courses.forEach(c => c.sessions.forEach(se => { if(se.day==='Saturday' && !allDays.includes('Saturday')) allDays.push('Saturday'); }));
   el.innerHTML = allDays.map(day => {
@@ -568,31 +607,46 @@ function renderDayBreakdown() {
     if(!isEmpty) {
       const starts = sessions.map(se=>parseTime(se.start)).sort((a,b)=>a-b);
       const ends = sessions.map(se=>parseTime(se.end)).sort((a,b)=>b-a);
-      times = `${fmtTime(starts[0])}–${fmtTime(ends[0])}`;
+      times = `${fmtTime(starts[0])} - ${fmtTime(ends[0])}`;
     }
-    return `<div class="day-bar ${isEmpty?'empty':''}"><div class="day-bar-label">${day.slice(0,3)}</div><div class="day-bar-value">${isEmpty?'Free':hrs.toFixed(1)+'h'}</div>${times?`<div class="day-bar-hours">${times}</div>`:''}</div>`;
+    return `<div class="compact-day-row ${isEmpty?'empty':''}">
+              <div class="c-day-lbl">${day.slice(0,3)}</div>
+              <div class="c-day-times">${isEmpty ? 'Free' : times}</div>
+              <div class="c-day-hrs">${isEmpty ? '-' : hrs.toFixed(1)+'h'}</div>
+            </div>`;
   }).join('');
 }
 
-function renderStats() {
-  const s = sorted[idx];
-  let ip=0, di=0;
-  s.courses.forEach(c => c.sessions.forEach(se => { const mc=getModeClass(se.mode); if(mc==='in-person')ip++; else if(mc==='online')di++; }));
+function renderMiniStats() {
+  const s = sorted[idx]; if(!s) return;
+  const el = document.getElementById('miniStats'); if(!el) return;
   const totalH = s.courses.reduce((sum,c) => sum+c.sessions.reduce((ss,se) => ss+(parseTime(se.end)-parseTime(se.start))/60,0),0);
   const gapH = (getGapMinutes(s)/60).toFixed(1);
   const earliest = fmtTime(getEarliestStart(s));
-  document.getElementById('stats').innerHTML = [
-    {v:s.courses.length,l:'Courses'},{v:s.courses.reduce((s2,c)=>s2+c.sessions.length,0),l:'Sessions'},
-    {v:totalH.toFixed(1)+'h',l:'Weekly Hours'},{v:ip,l:'In-Person'},{v:di,l:'Distance'},
-    {v:getActiveDays(s),l:'Active Days'},{v:gapH+'h',l:'Total Gaps'},{v:earliest,l:'Earliest'}
-  ].map(({v,l})=>`<div class="stat-card animate-in"><div class="stat-value">${v}</div><div class="stat-label">${l}</div></div>`).join('');
+  const activeDays = getActiveDays(s);
+  
+  el.innerHTML = [
+    {v: activeDays, l: 'Active Days'},
+    {v: totalH.toFixed(1) + 'h', l: 'Weekly Hours'},
+    {v: gapH + 'h', l: 'Total Gaps'},
+    {v: earliest, l: 'Earliest Start'}
+  ].map(({v,l}) => `<div class="mini-stat"><div class="stat-val">${v}</div><div class="stat-lbl">${l}</div></div>`).join('');
 }
 
-function renderChips() {
-  const s = sorted[idx], colors = getCourseColorMap(s);
-  document.getElementById('courseChips').innerHTML = s.courses.map(c =>
-    `<div class="course-chip"><div class="chip-dot" style="background:${colors[c.code]}"></div>${c.code} <span style="color:var(--text-muted);font-weight:400;margin-left:2px">Gr.${c.group}</span></div>`
-  ).join('');
+function renderCourseBlocks() {
+  const s = sorted[idx]; if(!s) return;
+  const el = document.getElementById('courseBlocks'); if(!el) return;
+  const colors = getCourseColorMap(s);
+  el.innerHTML = s.courses.map(c => {
+    const name = allCourses[c.code]?.name || 'Course';
+    return `<div class="course-block" style="border-left-color: ${colors[c.code]}">
+              <div class="course-block-header">
+                <span class="course-block-code">${c.code}</span>
+                <span class="course-block-group">Gr. ${c.group}</span>
+              </div>
+              <div class="course-block-name" title="${name}">${name}</div>
+            </div>`;
+  }).join('');
 }
 
 function renderCalendar() {
@@ -611,10 +665,11 @@ function renderCalendar() {
   let html = '<div class="calendar-wrapper"><div class="calendar-grid'+(hasSat?' has-saturday':'')+'">';
   html += '<div class="calendar-header">Time</div>';
   dayShort.forEach(d => { html += `<div class="calendar-header">${d}</div>`; });
-  slots.forEach(slot => {
+  slots.forEach((slot, si) => {
     const isHour = slot.endsWith(':00');
+    const isAlt = Math.floor(si / 2) % 2 === 1;
     html += `<div class="time-label">${isHour?slot:''}</div>`;
-    days.forEach(day => { html += `<div class="time-slot ${isHour?'hour-mark':''}" data-day="${day}"></div>`; });
+    days.forEach(day => { html += `<div class="time-slot ${isHour?'hour-mark':''} ${isAlt?'alt-row':''}" data-day="${day}"></div>`; });
   });
   html += '</div><div class="blocks-overlay" id="blocksOverlay"></div></div>';
   container.innerHTML = html;
@@ -843,8 +898,86 @@ function updateConstraintBadge() {
   }
 }
 
+
+// ─── Session Persistence ───
+function saveSession() {
+  const state = {
+    semester: document.getElementById('semesterSelect')?.value,
+    program: document.getElementById('programSelect')?.value,
+    required: requiredCourses,
+    optional: optionalCourses,
+    constraints: globalConstraints,
+    courseConstraints: courseConstraints,
+    total: totalPerSchedule,
+    favorites: [...favorites],
+    sort: document.getElementById('sortSelect')?.value
+  };
+  try { localStorage.setItem('ets_schedule_session', JSON.stringify(state)); } catch(e) {}
+}
+
+function tryRestoreSession() {
+  try {
+    const raw = localStorage.getItem('ets_schedule_session');
+    if (!raw) return;
+    const state = JSON.parse(raw);
+    if (!state.semester || !state.program) return;
+    const banner = document.getElementById('restoreBanner');
+    if (!banner) return;
+    banner.style.display = 'block';
+    banner.className = 'restore-banner';
+    banner.innerHTML = `<div class="restore-text">Resume previous session? <strong>${state.required.length + state.optional.length} courses</strong> selected</div>
+      <div class="restore-actions">
+        <button class="restore-btn primary" id="restoreYes">Restore</button>
+        <button class="restore-btn secondary" id="restoreNo">Start Fresh</button>
+      </div>`;
+    // Show on config phase load
+    document.getElementById('restoreYes')?.addEventListener('click', () => {
+      banner.style.display = 'none';
+      // Set dropdowns
+      document.getElementById('semesterSelect').value = state.semester;
+      populatePrograms();
+      document.getElementById('programSelect').value = state.program;
+      // Load CSV then restore selections
+      loadCSV(state.semester, state.program).then(() => {
+        state.required.forEach(c => { if(allCourses[c]) { requiredCourses.push(c); courseConstraints[c] = state.courseConstraints[c] || { allowedGroups: Object.keys(allCourses[c].groups) }; }});
+        state.optional.forEach(c => { if(allCourses[c]) { optionalCourses.push(c); courseConstraints[c] = state.courseConstraints[c] || { allowedGroups: Object.keys(allCourses[c].groups) }; }});
+        totalPerSchedule = state.total || 4;
+        globalConstraints = { ...globalConstraints, ...state.constraints };
+        favorites = new Set(state.favorites || []);
+        renderSelectionSummary(); renderCatalog();
+        toast('Session restored!', 'success');
+      });
+    });
+    document.getElementById('restoreNo')?.addEventListener('click', () => {
+      banner.style.display = 'none';
+      localStorage.removeItem('ets_schedule_session');
+    });
+  } catch(e) {}
+}
+
+// ─── Conflict Warning ───
+function checkConflicts() {
+  const all = [...requiredCourses, ...optionalCourses];
+  if(all.length < 2) { hideCompat(); return; }
+  let conflicts = 0;
+  for(let i=0;i<all.length;i++) {
+    for(let j=i+1;j<all.length;j++) {
+      const g1 = Object.values(allCourses[all[i]].groups).flat();
+      const g2 = Object.values(allCourses[all[j]].groups).flat();
+      if(groupsConflict(g1,g2)) conflicts++;
+    }
+  }
+  const el = document.getElementById('compatInfo');
+  if(!el) return;
+  if(conflicts > 0) {
+    el.style.display = 'block';
+    el.innerHTML = `<div class="conflict-warning">⚠️ ${conflicts} course pair${conflicts>1?'s':''} have conflicting time slots — the generator will find non-conflicting combinations</div>`;
+  } else { hideCompat(); }
+}
+function hideCompat() { const el = document.getElementById('compatInfo'); if(el) el.style.display='none'; }
+
 // ─── Public API ───
-window._app = { addCourse, removeCourse, toggleGroup };
+window._app = { addCourse, removeCourse, toggleGroup, toggleGroupOverlay };
 
 // ─── Manifest & Dynamic Dropdowns ───
 let manifest = null;
@@ -858,7 +991,6 @@ async function loadManifest() {
     toast('Course data loaded', 'info');
   } catch(e) {
     console.warn('Manifest load failed, using fallback:', e);
-    // Fallback: hardcoded options
     const semSel = document.getElementById('semesterSelect');
     semSel.innerHTML = '<option value="A-2026">Automne 2026</option><option value="E-2026">Été 2026</option><option value="H-2026">Hiver 2026</option>';
     const progSel = document.getElementById('programSelect');
@@ -868,14 +1000,20 @@ async function loadManifest() {
 
 function populateSemesters() {
   const semSel = document.getElementById('semesterSelect');
-  // Sort: most recent first (by year desc, then season order A > E > H)
   const seasonOrder = { A: 0, E: 1, H: 2 };
-  const sorted = [...manifest.semesters].sort((a, b) => {
+  
+  // Filter semesters to keep only E-2026, A-2026 and future ones
+  const filteredSemesters = manifest.semesters.filter(s => {
+    if (s.year > 2026) return true;
+    if (s.year === 2026 && (s.season === 'E' || s.season === 'A')) return true;
+    return false;
+  });
+
+  const sorted = filteredSemesters.sort((a, b) => {
     if (b.year !== a.year) return b.year - a.year;
     return seasonOrder[a.season] - seasonOrder[b.season];
   });
   semSel.innerHTML = sorted.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-  // Update programs for selected semester
   populatePrograms();
   semSel.addEventListener('change', populatePrograms);
 }
@@ -883,7 +1021,6 @@ function populateSemesters() {
 function populatePrograms() {
   const semId = document.getElementById('semesterSelect').value;
   const progSel = document.getElementById('programSelect');
-  // Find which programs have data for this semester
   const availProgs = new Set(manifest.available.filter(a => a.semester === semId).map(a => a.program));
   const progs = manifest.programs.filter(p => availProgs.has(p.id));
   if (progs.length === 0) {
@@ -896,5 +1033,13 @@ function populatePrograms() {
 
 // ─── Init ───
 setupEvents();
-loadManifest();
+loadManifest().then(() => tryRestoreSession());
+
+
+// Auto-save on key actions
+const origAddCourse = addCourse;
+addCourse = function(code, type) { origAddCourse(code, type); checkConflicts(); saveSession(); };
+const origRemoveCourse = removeCourse;
+removeCourse = function(code) { origRemoveCourse(code); checkConflicts(); saveSession(); };
+
 })();
