@@ -633,8 +633,20 @@ body::after {
   .export-wrapper .pill-btn { justify-content: center; width: 100%; }
   .export-menu { width: 100%; top: calc(100% + 4px); right: auto; left: 0; }
 
-  .results-sidebar { margin-bottom: 16px; }
+  .results-sidebar { margin-bottom: 16px; width: 100%; }
   .legend-bar { flex-wrap: wrap; justify-content: center; padding: 10px; border-radius: var(--radius-md); }
+  
+  /* Make Calendar Fit Screen */
+  .results-main { padding: 12px; }
+  .calendar-grid { min-width: 0; width: 100%; grid-template-columns: 40px repeat(5, 1fr); }
+  .calendar-grid.has-saturday { grid-template-columns: 40px repeat(6, 1fr); }
+  .calendar-header { padding: 0 2px; font-size: 0.55rem; letter-spacing: 0; }
+  .time-label { font-size: 0.6rem; }
+  .class-block { padding: 2px 4px; border-radius: 4px; }
+  .class-code { font-size: 0.65rem; }
+  .class-details { font-size: 0.55rem; line-height: 1.1; }
+  .room-tag { font-size: 0.5rem; padding: 1px 3px; }
+  .class-type-badge { font-size: 0.5rem; }
   
   /* Modals */
   .modal-overlay { padding: 12px; align-items: flex-end; } /* Bottom sheet style */
@@ -656,6 +668,11 @@ body::after {
   .calendar-header { font-size: 0.6rem; letter-spacing: 0; padding: 0 2px; }
   .time-label { font-size: 0.6rem; }
   .mini-stats { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 1024px) { 
+  .results-layout { display: flex; flex-direction: column-reverse; gap: 16px; }
+  .results-main { width: 100%; }
 }
 
 @media (hover: none) and (pointer: coarse), (max-width: 1024px) {
