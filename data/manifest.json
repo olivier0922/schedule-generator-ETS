@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-06T06:11:46.154868",
+  "generated": "2026-05-07T06:16:11.877637",
   "semesters": [
     {
       "id": "A-2025",
@@ -215,7 +215,7 @@
       "semester": "A-2026",
       "program": "ux",
       "file": "A-2026_ux.csv",
-      "size": 2047
+      "size": 2042
     },
     {
       "semester": "E-2025",
