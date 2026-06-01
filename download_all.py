@@ -39,7 +39,7 @@ def generate_semester_candidates():
 def probe_semester(sem_id, prog_id, ctx):
     """Check if a PDF exists on the ETS server via HEAD request."""
     url = BASE_URL.format(sem=sem_id, prog=prog_id)
-    req = urllib.request.Request(url, method='HEAD')
+    req = urllib.request.Request(url, method='HEAD', headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
     try:
         resp = urllib.request.urlopen(req, context=ctx, timeout=10)
         return resp.status == 200
@@ -84,7 +84,7 @@ def download_pdfs(semesters, ctx):
             
             try:
                 # Check Last-Modified header first
-                req = urllib.request.Request(url, method='HEAD')
+                req = urllib.request.Request(url, method='HEAD', headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
                 resp = urllib.request.urlopen(req, context=ctx, timeout=10)
                 last_mod = resp.headers.get('Last-Modified', '')
                 
@@ -93,7 +93,9 @@ def download_pdfs(semesters, ctx):
                     continue
                     
                 print(f"  Downloading {sem_label} {prog_info['name']}...")
-                urllib.request.urlretrieve(url, filename)
+                req_get = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+                with urllib.request.urlopen(req_get, context=ctx, timeout=30) as r, open(filename, 'wb') as f:
+                    f.write(r.read())
                 sync_state[file_key] = last_mod
                 updated_files.append(file_key)
                 print(f"    [OK] Saved to {filename}")
