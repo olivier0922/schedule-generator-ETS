@@ -1,3 +1,10 @@
 pdfs/
 __pycache__/
 *.pyc
+*.pdf
+all_schedules.json
+courses_schedule.csv
+.env
+.venv
+venv/
+.DS_Store
