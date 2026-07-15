@@ -1,6 +1,6 @@
 ﻿page,course_code,course_name,group,day,start_time,end_time,activity_type,mode,room
 1,COM120,MÉTHODES DE COMMUNICATION,01,Monday,09:00,12:30,Lecture,In-person,N. Berthiaume
-1,COM120,MÉTHODES DE COMMUNICATION,01,Wednesday,08:30,12:30,Lab,In-person,
+1,COM120,MÉTHODES DE COMMUNICATION,01,Wednesday,08:30,12:30,Lab,In-person,N. Berthiaume
 1,COM120,MÉTHODES DE COMMUNICATION,02,Thursday,18:00,21:30,Lecture,In-person,J. Milette
 1,COM120,MÉTHODES DE COMMUNICATION,02,Tuesday,18:00,22:00,Lab,In-person,
 1,GTI525,TECHNOLOGIES DE DÉVELOPPEMENT INTERNET,01,Monday,18:00,20:00,Lab,In-person,A-3344

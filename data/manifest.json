@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-14T05:36:43.449424",
+  "generated": "2026-07-15T05:39:07.341112",
   "semesters": [
     {
       "id": "A-2025",
@@ -161,61 +161,61 @@
       "semester": "A-2026",
       "program": "aer",
       "file": "A-2026_aer.csv",
-      "size": 20609
+      "size": 20674
     },
     {
       "semester": "A-2026",
       "program": "ctn",
       "file": "A-2026_ctn.csv",
-      "size": 30406
+      "size": 30434
     },
     {
       "semester": "A-2026",
       "program": "ele",
       "file": "A-2026_ele.csv",
-      "size": 32760
+      "size": 32778
     },
     {
       "semester": "A-2026",
       "program": "gol",
       "file": "A-2026_gol.csv",
-      "size": 25927
+      "size": 25958
     },
     {
       "semester": "A-2026",
       "program": "gpa",
       "file": "A-2026_gpa.csv",
-      "size": 30901
+      "size": 30948
     },
     {
       "semester": "A-2026",
       "program": "gti",
       "file": "A-2026_gti.csv",
-      "size": 35314
+      "size": 35361
     },
     {
       "semester": "A-2026",
       "program": "inf",
       "file": "A-2026_inf.csv",
-      "size": 13738
+      "size": 13751
     },
     {
       "semester": "A-2026",
       "program": "log",
       "file": "A-2026_log.csv",
-      "size": 36805
+      "size": 36852
     },
     {
       "semester": "A-2026",
       "program": "mec",
       "file": "A-2026_mec.csv",
-      "size": 36319
+      "size": 36371
     },
     {
       "semester": "A-2026",
       "program": "ux",
       "file": "A-2026_ux.csv",
-      "size": 2230
+      "size": 2420
     },
     {
       "semester": "E-2025",
