@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-29T05:57:46.667105",
+  "generated": "2026-07-30T05:47:39.261616",
   "semesters": [
     {
       "id": "A-2025",
@@ -42,13 +42,6 @@
       "name": "Hiver 2026",
       "season": "H",
       "year": 2026
-    },
-    {
-      "id": "H-2027",
-      "code": "20271",
-      "name": "Hiver 2027",
-      "season": "H",
-      "year": 2027
     }
   ],
   "programs": [
@@ -198,19 +191,19 @@
       "semester": "A-2026",
       "program": "gti",
       "file": "A-2026_gti.csv",
-      "size": 35849
+      "size": 35860
     },
     {
       "semester": "A-2026",
       "program": "inf",
       "file": "A-2026_inf.csv",
-      "size": 13773
+      "size": 13784
     },
     {
       "semester": "A-2026",
       "program": "log",
       "file": "A-2026_log.csv",
-      "size": 37364
+      "size": 37375
     },
     {
       "semester": "A-2026",
@@ -439,66 +432,6 @@
       "program": "ux",
       "file": "H-2026_ux.csv",
       "size": 1202
-    },
-    {
-      "semester": "H-2027",
-      "program": "aer",
-      "file": "H-2027_aer.csv",
-      "size": 20110
-    },
-    {
-      "semester": "H-2027",
-      "program": "ctn",
-      "file": "H-2027_ctn.csv",
-      "size": 26609
-    },
-    {
-      "semester": "H-2027",
-      "program": "ele",
-      "file": "H-2027_ele.csv",
-      "size": 26436
-    },
-    {
-      "semester": "H-2027",
-      "program": "gol",
-      "file": "H-2027_gol.csv",
-      "size": 20980
-    },
-    {
-      "semester": "H-2027",
-      "program": "gpa",
-      "file": "H-2027_gpa.csv",
-      "size": 24540
-    },
-    {
-      "semester": "H-2027",
-      "program": "gti",
-      "file": "H-2027_gti.csv",
-      "size": 30830
-    },
-    {
-      "semester": "H-2027",
-      "program": "inf",
-      "file": "H-2027_inf.csv",
-      "size": 9071
-    },
-    {
-      "semester": "H-2027",
-      "program": "log",
-      "file": "H-2027_log.csv",
-      "size": 31369
-    },
-    {
-      "semester": "H-2027",
-      "program": "mec",
-      "file": "H-2027_mec.csv",
-      "size": 27006
-    },
-    {
-      "semester": "H-2027",
-      "program": "ux",
-      "file": "H-2027_ux.csv",
-      "size": 1214
     }
   ]
 }
