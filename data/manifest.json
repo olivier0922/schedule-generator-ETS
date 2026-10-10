@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-09T10:17:25.416247",
+  "generated": "2026-10-10T09:37:38.183207",
   "semesters": [
     {
       "id": "A-2025",
@@ -456,7 +456,7 @@
       "semester": "H-2027",
       "program": "ele",
       "file": "H-2027_ele.csv",
-      "size": 26092
+      "size": 26090
     },
     {
       "semester": "H-2027",
