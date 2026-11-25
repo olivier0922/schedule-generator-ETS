@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-24T13:28:34.023906",
+  "generated": "2026-11-25T12:24:00.259590",
   "semesters": [
     {
       "id": "A-2025",
@@ -474,19 +474,19 @@
       "semester": "H-2027",
       "program": "gti",
       "file": "H-2027_gti.csv",
-      "size": 31446
+      "size": 31457
     },
     {
       "semester": "H-2027",
       "program": "inf",
       "file": "H-2027_inf.csv",
-      "size": 9205
+      "size": 9216
     },
     {
       "semester": "H-2027",
       "program": "log",
       "file": "H-2027_log.csv",
-      "size": 32452
+      "size": 32463
     },
     {
       "semester": "H-2027",
