@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-26T12:05:40.360080",
+  "generated": "2026-11-27T11:56:17.616539",
   "semesters": [
     {
       "id": "A-2025",
@@ -456,43 +456,43 @@
       "semester": "H-2027",
       "program": "ele",
       "file": "H-2027_ele.csv",
-      "size": 29766
+      "size": 29777
     },
     {
       "semester": "H-2027",
       "program": "gol",
       "file": "H-2027_gol.csv",
-      "size": 21994
+      "size": 22021
     },
     {
       "semester": "H-2027",
       "program": "gpa",
       "file": "H-2027_gpa.csv",
-      "size": 26397
+      "size": 26418
     },
     {
       "semester": "H-2027",
       "program": "gti",
       "file": "H-2027_gti.csv",
-      "size": 31545
+      "size": 31579
     },
     {
       "semester": "H-2027",
       "program": "inf",
       "file": "H-2027_inf.csv",
-      "size": 9278
+      "size": 9312
     },
     {
       "semester": "H-2027",
       "program": "log",
       "file": "H-2027_log.csv",
-      "size": 32551
+      "size": 32585
     },
     {
       "semester": "H-2027",
       "program": "mec",
       "file": "H-2027_mec.csv",
-      "size": 30559
+      "size": 30570
     },
     {
       "semester": "H-2027",
